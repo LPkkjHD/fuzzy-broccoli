@@ -1,9 +1,6 @@
-use std::f32::consts::PI;
-
 
 mod broccoli;
 use bevy::prelude::*;
-use bevy_svg::prelude::Origin;
 use broccoli::BroccoliPlugin;
 fn main() {
     let app_name = if cfg!(debug_assertions) {
@@ -39,5 +36,3 @@ pub fn empty_system() {}
 pub fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2d {});
 }
-
-
