@@ -1,12 +1,25 @@
 use std::f32::consts::PI;
 
 use bevy::prelude::*;
-use bevy_svg::prelude::{Origin, Svg2d};
-
+use bevy_svg::prelude::Origin;
 fn main() {
+    let app_name = if cfg!(debug_assertions) {
+        "dev App"
+    } else {
+        "App"
+    };
     let mut app = App::new();
     // Add plugins
-    app.add_plugins((DefaultPlugins, bevy_svg::prelude::SvgPlugin));
+    app.add_plugins((
+        DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: app_name.into(),
+                ..default()
+            }),
+            ..default()
+        }),
+        bevy_svg::prelude::SvgPlugin,
+    ));
 
     app.add_systems(Startup, (setup_camera, empty_system, spawn_broccoli))
         .add_systems(Update, rotate_broccoli);
