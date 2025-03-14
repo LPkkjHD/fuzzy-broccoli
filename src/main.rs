@@ -1,4 +1,3 @@
-
 mod broccoli;
 use bevy::prelude::*;
 use broccoli::BroccoliPlugin;
