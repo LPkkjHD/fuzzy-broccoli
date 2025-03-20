@@ -1,6 +1,13 @@
 mod broccoli;
 use bevy::prelude::*;
 use broccoli::BroccoliPlugin;
+use enemy::EnemyPlugin;
+use map_genreation::MapGenerationPlugin;
+use player::PlayerPlugin;
+
+mod enemy;
+mod map_genreation;
+mod player;
 fn main() {
     let app_name = if cfg!(debug_assertions) {
         "dev App"
@@ -21,7 +28,12 @@ fn main() {
     ));
 
     // Add custom plugins
-    app.add_plugins(BroccoliPlugin);
+    app.add_plugins((
+        BroccoliPlugin,
+        PlayerPlugin,
+        EnemyPlugin,
+        MapGenerationPlugin,
+    ));
 
     app.add_systems(Startup, (setup_camera, empty_system));
 
