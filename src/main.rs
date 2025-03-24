@@ -8,6 +8,9 @@ use player::PlayerPlugin;
 mod enemy;
 mod map_genreation;
 mod player;
+mod ui;
+
+
 fn main() {
     let app_name = if cfg!(debug_assertions) {
         "dev App"
