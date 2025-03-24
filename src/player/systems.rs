@@ -85,8 +85,8 @@ pub fn setup_board(mut commands: Commands) {
     let board_size_squares_x = 100; // Number of squares in x-direction
     let board_size_squares_y = 100; // Number of squares in y-direction
 
-    let color_light = Color::rgb(0.7, 0.7, 0.7); // Light gray
-    let color_dark = Color::rgb(0.3, 0.3, 0.3); // Dark gray
+    let color_light = Color::srgb(0.7, 0.7, 0.7); // Light gray
+    let color_dark = Color::srgb(0.3, 0.3, 0.3); // Dark gray
 
     for row in 0..board_size_squares_y {
         for col in 0..board_size_squares_x {
@@ -98,15 +98,14 @@ pub fn setup_board(mut commands: Commands) {
             let x_pos = (col as f32 - (board_size_squares_x as f32 / 2.0 - 0.5)) * square_size;
             let y_pos = (row as f32 - (board_size_squares_y as f32 / 2.0 - 0.5)) * square_size;
 
-            commands.spawn(SpriteBundle {
-                sprite: Sprite {
+            commands.spawn((
+                Sprite {
                     color,
                     rect: Some(Rect::new(0.0, 0.0, square_size, square_size)), // Define square size
                     ..Default::default()
                 },
-                transform: Transform::from_translation(Vec3::new(x_pos, y_pos, -1.0)), // z-index -1 to put board behind player
-                ..Default::default()
-            });
+                Transform::from_translation(Vec3::new(x_pos, y_pos, -1.0)), // z-index -1 to put board behind player
+            ));
         }
     }
 }
