@@ -1,4 +1,4 @@
-mod broccoli;
+pub mod broccoli;
 use bevy::prelude::*;
 use broccoli::BroccoliPlugin;
 use enemy::EnemyPlugin;
@@ -7,7 +7,7 @@ use player::PlayerPlugin;
 
 mod enemy;
 mod map_genreation;
-mod player;
+pub mod player;
 mod ui;
 
 

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use fuzzy_broccoli::player::PlayerPlugin;
 
 pub fn main() {
     let mut app = App::new();
@@ -6,6 +7,7 @@ pub fn main() {
     app.add_plugins(DefaultPlugins);
 
     app.add_systems(Startup, startup);
+    app.add_plugins(PlayerPlugin);
 
     app.run();
 }

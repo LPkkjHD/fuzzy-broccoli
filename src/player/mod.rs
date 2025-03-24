@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use resources::default_system;
+use systems::spawn_player;
 
 mod components;
 mod resources;
@@ -9,6 +9,6 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, default_system);
+        app.add_systems(Startup, spawn_player);
     }
 }

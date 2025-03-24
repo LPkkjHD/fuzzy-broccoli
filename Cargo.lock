@@ -2123,7 +2123,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "fuzzy-broccoli"
+name = "fuzzy_broccoli"
 version = "0.1.0"
 dependencies = [
  "bevy",
