@@ -110,3 +110,20 @@ pub fn setup_board(mut commands: Commands) {
         }
     }
 }
+
+pub fn zoom_control_system(
+    input: Res<ButtonInput<KeyCode>>,
+    mut camera_query: Query<&mut OrthographicProjection, With<PlayerCamera>>,
+) {
+    let mut projection = camera_query.single_mut();
+
+    if input.pressed(KeyCode::Digit0) {
+        projection.scale += 0.2;
+    }
+
+    if input.pressed(KeyCode::Digit9) {
+        projection.scale -= 0.2;
+    }
+
+    projection.scale = projection.scale.clamp(0.2, 5.);
+}

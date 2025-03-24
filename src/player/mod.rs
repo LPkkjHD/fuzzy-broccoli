@@ -12,5 +12,6 @@ impl Plugin for PlayerPlugin {
         app.add_systems(Startup, setup_board);
         app.add_systems(Startup, (spawn_player, spawn_player_camera).chain());
         app.add_systems(Update, (player_movement_system, move_camera).chain());
+        app.add_systems(Update, zoom_control_system);
     }
 }
