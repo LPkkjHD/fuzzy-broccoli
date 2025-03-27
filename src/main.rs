@@ -2,6 +2,7 @@ pub mod broccoli;
 use bevy::prelude::*;
 use broccoli::BroccoliPlugin;
 use enemy::EnemyPlugin;
+use fuzzy_broccoli::audio::AudioPlugin;
 use map_genreation::MapGenerationPlugin;
 use player::PlayerPlugin;
 
@@ -36,6 +37,7 @@ fn main() {
         PlayerPlugin,
         EnemyPlugin,
         MapGenerationPlugin,
+        AudioPlugin,
     ));
 
     app.add_systems(Startup, (setup_camera, empty_system));
