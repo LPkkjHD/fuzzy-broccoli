@@ -5,3 +5,4 @@ pub mod enemy;
 pub mod map_genreation;
 pub mod player;
 pub mod ui;
+pub mod audio;

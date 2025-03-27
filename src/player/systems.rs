@@ -2,14 +2,21 @@ use bevy::prelude::*;
 
 use super::components::*;
 
-pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn spawn_player(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
+) {
+    let texture_handle: Handle<Image> = asset_server.load("./top_down_shooter/skins.png");
+    let texture_atlas = TextureAtlasLayout::from_grid(UVec2::splat(24), 19, 11, None, None);
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
     commands.spawn((
         Player,
-        Sprite{
-            image: asset_server.load("zombie_apocalypse_tileset/organized_separated_sprites/Player Character Walking Animation Frames/Zombie-Tileset---_0476_Capa-477.png"),
+        Sprite {
+            image: asset_server.load("./top_down_shooter/skins.png"),
             ..default()
         },
-        Transform::from_xyz(1.0, 1.0, 0.0),
+        Transform::from_xyz(1.0, 1.0, 1.0),
         PlayerMovement::new(100.0),
     ));
 }

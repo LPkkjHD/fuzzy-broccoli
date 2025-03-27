@@ -5,11 +5,11 @@ use enemy::EnemyPlugin;
 use map_genreation::MapGenerationPlugin;
 use player::PlayerPlugin;
 
+mod audio;
 mod enemy;
 mod map_genreation;
 pub mod player;
 mod ui;
-
 
 fn main() {
     let app_name = if cfg!(debug_assertions) {
