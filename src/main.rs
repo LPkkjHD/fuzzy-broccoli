@@ -21,13 +21,15 @@ fn main() {
     let mut app = App::new();
     // Add plugins
     app.add_plugins((
-        DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: app_name.into(),
+        DefaultPlugins
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: app_name.into(),
+                    ..default()
+                }),
                 ..default()
-            }),
-            ..default()
-        }),
+            })
+            .set(ImagePlugin::default_nearest()),
         bevy_svg::prelude::SvgPlugin,
     ));
 
