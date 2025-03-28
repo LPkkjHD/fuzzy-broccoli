@@ -1,8 +1,11 @@
 use bevy::prelude::*;
 use enemy::EnemyPlugin;
 use fuzzy_broccoli::audio::AudioPlugin;
+use main_menu::MainMenuPlugin;
 use map_genreation::MapGenerationPlugin;
 use player::PlayerPlugin;
+
+mod main_menu;
 
 mod audio;
 mod enemy;
@@ -33,6 +36,7 @@ fn main() {
 
     // Add custom plugins
     app.add_plugins((
+        MainMenuPlugin,
         PlayerPlugin,
         EnemyPlugin,
         MapGenerationPlugin,
