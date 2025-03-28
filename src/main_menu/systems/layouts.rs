@@ -26,6 +26,10 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
                 row_gap: Val::Px(8.0),
                 ..default()
             },
+            ImageNode {
+                image: asset_server.load("zombiebackground.png"),
+                ..default()
+            },
             BackgroundColor(Color::srgb(0.5, 0.5, 0.5)),
             MainMenu {},
         ))
