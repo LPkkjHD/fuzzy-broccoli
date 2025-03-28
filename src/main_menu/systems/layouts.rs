@@ -44,24 +44,6 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
                     BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
                 ))
                 .with_children(|parent| {
-                    // Left Ball
-                    parent.spawn((
-                        ImageNode {
-                            image: asset_server.load("sprites/ball_blue_large.png"),
-                            ..default()
-                        },
-                        Node {
-                            width: Val::Px(64.0),
-                            height: Val::Px(64.0),
-                            margin: UiRect {
-                                left: Val::Px(8.0),
-                                right: Val::Px(8.0),
-                                top: Val::Px(8.0),
-                                bottom: Val::Px(8.0),
-                            },
-                            ..default()
-                        },
-                    ));
                     // center text
                     parent
                         .spawn(Node {
@@ -81,32 +63,13 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
                         })
                         .with_children(|parent| {
                             parent.spawn((
-                                Text("Ball Game".to_string()),
+                                Text("You will Survive".to_string()),
                                 TextFont {
                                     font_size: 38.0,
                                     ..default()
                                 },
                             ));
                         });
-
-                    // Right Ball
-                    parent.spawn((
-                        ImageNode {
-                            image: asset_server.load("sprites/ball_blue_large.png"),
-                            ..default()
-                        },
-                        Node {
-                            width: Val::Px(64.0),
-                            height: Val::Px(64.0),
-                            margin: UiRect {
-                                left: Val::Px(8.0),
-                                right: Val::Px(8.0),
-                                top: Val::Px(8.0),
-                                bottom: Val::Px(8.0),
-                            },
-                            ..default()
-                        },
-                    ));
                 });
 
             // == Play Button ==
