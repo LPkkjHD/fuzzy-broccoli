@@ -1,6 +1,4 @@
-pub mod broccoli;
 use bevy::prelude::*;
-use broccoli::BroccoliPlugin;
 use enemy::EnemyPlugin;
 use fuzzy_broccoli::audio::AudioPlugin;
 use map_genreation::MapGenerationPlugin;
@@ -35,7 +33,6 @@ fn main() {
 
     // Add custom plugins
     app.add_plugins((
-        BroccoliPlugin,
         PlayerPlugin,
         EnemyPlugin,
         MapGenerationPlugin,
