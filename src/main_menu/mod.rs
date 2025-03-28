@@ -26,5 +26,4 @@ pub enum AppState {
     #[default]
     MainMenu,
     Game,
-    Settings,
 }

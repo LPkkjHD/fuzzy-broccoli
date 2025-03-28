@@ -26,7 +26,7 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
                 row_gap: Val::Px(8.0),
                 ..default()
             },
-            BackgroundColor(Color::srgb(0.2, 0.8, 0.5)),
+            BackgroundColor(Color::srgb(0.5, 0.5, 0.5)),
             MainMenu {},
         ))
         .with_children(|parent| {

@@ -43,15 +43,6 @@ fn main() {
         AudioPlugin,
     ));
 
-    app.add_systems(Startup, (setup_camera, empty_system));
-
     // run the app
     app.run();
-}
-
-// This is an empty system to disable  the bevy app shutdown Immedatly.
-pub fn empty_system() {}
-
-pub fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera2d {});
 }
