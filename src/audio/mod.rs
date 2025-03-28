@@ -5,7 +5,6 @@ pub struct AudioPlugin;
 
 impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
-        // for the compiler
         app.init_state::<AudioTrack>()
             .add_plugins(bevy_kira_audio::AudioPlugin)
             .add_event::<TrackSwitchEvent>() // Register the new event
