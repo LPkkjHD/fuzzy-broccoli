@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use fuzzy_broccoli::ui::UiPlugin;
 
 
 pub fn main() {
