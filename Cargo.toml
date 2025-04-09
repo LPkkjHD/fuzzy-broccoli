@@ -5,9 +5,9 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.15.3",default-features=false,  features = [
-  "android-game-activity",
-  "android-game-activity",
-  "android_shared_stdcxx",
+  # "android-game-activity",
+  # "android-game-activity",
+  # "android_shared_stdcxx",
   "animation",
   "bevy_asset",
   # "bevy_audio",
@@ -40,7 +40,7 @@ bevy = { version = "0.15.3",default-features=false,  features = [
   "vorbis",
   "webgl2",
   "x11",
-    "dynamic_linking",
+  "dynamic_linking",
 ] }
 bevy_kira_audio = "0.22.0"
 bevy_svg = "0.15.1"
