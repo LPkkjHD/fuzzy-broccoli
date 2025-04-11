@@ -1,3 +1,4 @@
+use avian2d::prelude::*;
 use bevy::prelude::*;
 use enemy::EnemyPlugin;
 use fuzzy_broccoli::audio::AudioPlugin;
@@ -32,6 +33,7 @@ fn main() {
             })
             .set(ImagePlugin::default_nearest()),
         bevy_svg::prelude::SvgPlugin,
+        PhysicsPlugins::default(),
     ));
 
     // Add custom plugins
