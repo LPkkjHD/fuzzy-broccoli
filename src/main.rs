@@ -44,6 +44,8 @@ fn main() {
         MapGenerationPlugin,
         AudioPlugin,
     ));
+    app.insert_resource(Gravity(Vec2::ZERO));
+
 
     // run the app
     app.run();

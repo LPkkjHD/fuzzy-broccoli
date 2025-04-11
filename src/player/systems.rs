@@ -1,3 +1,4 @@
+use avian2d::prelude::*;
 use bevy::prelude::*;
 
 use super::components::*;
@@ -12,6 +13,9 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform::from_xyz(0.0, 0.0, 0.0),
             // .with_scale(Vec3::new(2.0,2.0,1.0)),
         PlayerMovement::new(100.0),
+        RigidBody::Kinematic,
+        Collider::capsule(16.0, 16.0),
+        Mass(10.0),
     ));
 }
 
@@ -82,7 +86,7 @@ pub fn move_camera(
 }
 // System to set up the checkerboard background
 pub fn setup_board(mut commands: Commands) {
-    let square_size = 32.0; // Size of each square in pixels
+    let square_size = 16.0; // Size of each square in pixels
     let board_size_squares_x = 100; // Number of squares in x-direction
     let board_size_squares_y = 100; // Number of squares in y-direction
 
@@ -118,11 +122,11 @@ pub fn zoom_control_system(
     let mut projection = camera_query.single_mut();
 
     if input.pressed(KeyCode::Digit0) {
-        projection.scale += 0.2;
+        projection.scale += 0.05;
     }
 
     if input.pressed(KeyCode::Digit9) {
-        projection.scale -= 0.2;
+        projection.scale -= 0.05;
     }
 
     projection.scale = projection.scale.clamp(0.2, 5.);
