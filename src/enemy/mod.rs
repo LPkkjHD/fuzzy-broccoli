@@ -19,6 +19,7 @@ impl Plugin for EnemyPlugin {
                 spawn_enemy_system,
                 enemy_movement_and_direction_system,
                 animate_enemy_system,
+                prevent_enemy_overlap_system
             ));
     }
 }

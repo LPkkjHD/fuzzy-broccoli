@@ -150,6 +150,39 @@ pub fn enemy_movement_and_direction_system(
         sprite.flip_x = new_direction == FacingDirection::Right;
     }
 }
+
+pub fn prevent_enemy_overlap_system(
+    mut query: Query<(&mut Transform, Entity), With<Enemy>>,
+) {
+    let mut enemy_positions: Vec<(Entity, Vec3)> = query
+        .iter()
+        .map(|(transform, entity)| (entity, transform.translation))
+        .collect();
+
+    for i in 0..enemy_positions.len() {
+        for j in (i + 1)..enemy_positions.len() {
+            let (entity_a, pos_a) = enemy_positions[i];
+            let (entity_b, pos_b) = enemy_positions[j];
+
+            let distance = pos_a.distance(pos_b);
+            let min_distance = 32.0;
+
+            if distance < min_distance {
+                let overlap = min_distance - distance;
+                let direction = (pos_b - pos_a).normalize_or_zero();
+
+                // Entity verschieben bei Overlap
+                if let Ok((mut transform_a, _)) = query.get_mut(entity_a) {
+                    transform_a.translation -= direction * (overlap / 2.0);
+                }
+                if let Ok((mut transform_b, _)) = query.get_mut(entity_b) {
+                    transform_b.translation += direction * (overlap / 2.0);
+                }
+            }
+        }
+    }
+}
+
 /// Animation sustem for enemies
 pub fn animate_enemy_system(
     mut query: Query<(&mut AnimationTimer, &mut AnimationFrame)>,
