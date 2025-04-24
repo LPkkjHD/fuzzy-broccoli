@@ -9,6 +9,15 @@ pub struct HealthBarElement {
     pub element_type: HealthElementType,
 }
 
+#[derive(Component, Debug, Clone, Copy)]
+pub struct HeartSlot {
+    pub index: u8,
+}
+#[derive(Component, Debug, Clone, Copy)]
+pub struct HeartForeground {
+    pub index: u8,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum HealthElementType {
     Background,
