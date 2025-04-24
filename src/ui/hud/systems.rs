@@ -41,12 +41,18 @@ pub fn spawn_hud_system(
                             .spawn(Node {
                                 width: Val::Px(32.0),
                                 height: Val::Px(32.0),
-                                position_type: PositionType::Relative,
+                                // align_items: AlignItems::Center,
                                 ..default()
                             })
                             .with_children(|slot| {
                                 // Background Based on max health
                                 slot.spawn((
+                                    Node {
+                                        width: Val::Percent(100.0),
+                                        height: Val::Percent(100.0),
+                                        position_type: PositionType::Absolute,
+                                        ..default()
+                                    },
                                     HealthBarElement {
                                         index: i,
                                         element_type: HealthElementType::Background,
@@ -59,6 +65,12 @@ pub fn spawn_hud_system(
                                 // Border (Visible based on current
                                 // health)
                                 slot.spawn((
+                                    Node {
+                                        width: Val::Percent(100.0),
+                                        height: Val::Percent(100.0),
+                                        position_type: PositionType::Absolute,
+                                        ..default()
+                                    },
                                     HealthBarElement {
                                         index: i,
                                         element_type: HealthElementType::Border,
@@ -71,6 +83,12 @@ pub fn spawn_hud_system(
                                 // Heart (Visible based on current
                                 // health)
                                 slot.spawn((
+                                    Node {
+                                        width: Val::Percent(100.0),
+                                        height: Val::Percent(100.0),
+                                        position_type: PositionType::Absolute,
+                                        ..default()
+                                    },
                                     HealthBarElement {
                                         index: i,
                                         element_type: HealthElementType::Heart,
