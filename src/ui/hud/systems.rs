@@ -21,7 +21,7 @@ pub fn spawn_health_bar_container_system(
         if container_query.is_empty() {
             info!(
                 "Player added with health {}, setting HUD.",
-                player_health.max_health
+                player_health.max_health()
             );
             commands.spawn((
                 Node {
@@ -122,7 +122,6 @@ pub fn update_health_bar_system(
     player_query: Query<&PlayerHealth, (With<Player>, Changed<PlayerHealth>)>,
     container_query: Query<Entity, With<HealthBarContainer>>,
     slot_query: Query<(Entity, &HeartSlot)>,
-    mut heart_fg_query: Query<(&HeartForeground, &mut Visibility)>,
     health_assets: Res<HealthBarAssets>,
 ) {
     if let Ok(player_health) = player_query.get_single() {
@@ -133,9 +132,10 @@ pub fn update_health_bar_system(
 
         info!(
             "Player health changed to {}/{}. Updating HUD visibility.",
-            player_health.current_health, player_health.max_health
+            player_health.current_health(),
+            player_health.max_health()
         );
-        let new_max_health = player_health.max_health;
+        let new_max_health = player_health.max_health();
         let mut current_slots = Vec::new();
         for (entity, slot) in slot_query.iter() {
             current_slots.push((entity, slot.index));
@@ -182,7 +182,7 @@ pub fn update_health_system(
 ) {
     if let Ok(player_health) = player_query.get_single() {
         for (heart_fg, mut visibility) in heart_fg_query.iter_mut() {
-            if heart_fg.index < player_health.current_health {
+            if heart_fg.index < player_health.current_health() {
                 *visibility = Visibility::Inherited;
             } else {
                 *visibility = Visibility::Hidden;

@@ -21,8 +21,8 @@ impl PlayerMovement {
 
 #[derive(Component)]
 pub struct PlayerHealth {
-    pub current_health: u8,
-    pub max_health: u8,
+    current_health: u8,
+    max_health: u8,
 }
 
 impl Default for PlayerHealth {
@@ -40,5 +40,28 @@ impl PlayerHealth {
             current_health: max_health,
             max_health,
         }
+    }
+    pub fn increase_health(self: &mut Self, amount: u8) {
+        self.current_health += amount;
+    }
+    pub fn decrease_health(self: &mut Self, amount: u8) {
+        self.current_health -= amount;
+    }
+    pub fn increase_max_health(self: &mut Self, amount: u8) {
+        self.max_health += amount;
+    }
+    pub fn decrease_max_health(self: &mut Self, amount: u8) {
+        self.max_health -= amount;
+        if self.max_health < self.current_health {
+            self.current_health = self.max_health;
+        }
+    }
+
+    pub fn current_health(&self) -> u8 {
+        self.current_health
+    }
+
+    pub fn max_health(&self) -> u8 {
+        self.max_health
     }
 }

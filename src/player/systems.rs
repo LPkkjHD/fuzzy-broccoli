@@ -15,7 +15,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             // .with_scale(Vec3::new(2.0,2.0,1.0)),
         PlayerMovement::new(100.0),
         // Add PlayerHealth Component with default values of 3/3 lifes/max_lifes
-        PlayerHealth{..default()},
+        PlayerHealth::new(3),
         RigidBody::Kinematic,
         Collider::capsule(16.0, 16.0),
         Mass(10.0),
@@ -142,15 +142,15 @@ pub fn player_debug_system(
 ) {
     let mut player_health = player_components_query.single_mut();
     if input.just_pressed(KeyCode::KeyH) {
-        player_health.current_health -= 1;
+        player_health.decrease_health(1);
     }
     if input.just_pressed(KeyCode::KeyJ) {
-        player_health.current_health += 1;
+        player_health.increase_health(1);
     }
     if input.just_pressed(KeyCode::KeyK) {
-        player_health.max_health -= 1;
+        player_health.decrease_max_health(1);
     }
     if input.just_pressed(KeyCode::KeyL) {
-        player_health.max_health += 1;
+        player_health.increase_max_health(1);
     }
 }
