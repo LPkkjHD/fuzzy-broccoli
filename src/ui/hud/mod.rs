@@ -14,7 +14,11 @@ impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, load_health_bar_assets);
 
-        app.add_systems(OnEnter(AppState::InGame), spawn_hud_system);
-        app.add_systems(OnExit(AppState::InGame), despawn_hud_system);
+        app.add_systems(OnEnter(AppState::InGame), spawn_hud_system)
+            .add_systems(OnExit(AppState::InGame), despawn_hud_system)
+            .add_systems(
+                Update,
+                update_health_bar_visibility_system.run_if(in_state(AppState::InGame)),
+            );
     }
 }

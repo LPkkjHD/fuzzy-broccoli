@@ -1,4 +1,4 @@
-use crate::player::components::PlayerHealth;
+use crate::player::components::{Player, PlayerHealth};
 
 use super::{components::*, HealthBarAssets};
 use bevy::prelude::*;
@@ -121,4 +121,29 @@ pub fn despawn_hud_system(
     commands
         .entity(hud_query.get_single().unwrap())
         .despawn_recursive();
+}
+
+pub fn update_health_bar_visibility_system(
+    player_query: Query<&PlayerHealth, (With<Player>, Changed<PlayerHealth>)>,
+    mut element_query: Query<(&HealthBarElement, &mut Visibility)>,
+) {
+    if let Ok(player_health) = player_query.get_single() {
+        info!(
+            "Player health changed to {}/{}. Updating HUD visibility.",
+            player_health.current_health, player_health.max_health
+        );
+        for (element, mut visibility) in element_query.iter_mut() {
+            match element.element_type {
+                HealthElementType::Background => (),
+                HealthElementType::Border => (),
+                HealthElementType::Heart => {
+                    if element.index < player_health.current_health {
+                        *visibility = Visibility::Inherited;
+                    } else {
+                        *visibility = Visibility::Hidden;
+                    }
+                }
+            }
+        }
+    }
 }

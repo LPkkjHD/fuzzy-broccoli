@@ -135,3 +135,22 @@ pub fn zoom_control_system(
 
     projection.scale = projection.scale.clamp(0.2, 5.);
 }
+
+pub fn player_debug_system(
+    input: Res<ButtonInput<KeyCode>>,
+    mut player_components_query: Query<&mut PlayerHealth, With<Player>>,
+) {
+    let mut player_health = player_components_query.single_mut();
+    if input.just_pressed(KeyCode::KeyH) {
+        player_health.current_health -= 1;
+    }
+    if input.just_pressed(KeyCode::KeyJ) {
+        player_health.current_health += 1;
+    }
+    if input.just_pressed(KeyCode::KeyK) {
+        player_health.max_health -= 1;
+    }
+    if input.just_pressed(KeyCode::KeyL) {
+        player_health.max_health += 1;
+    }
+}
