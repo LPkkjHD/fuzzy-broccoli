@@ -18,7 +18,9 @@ impl Plugin for HudPlugin {
             .add_systems(OnExit(AppState::InGame), despawn_hud_system)
             .add_systems(
                 Update,
-                update_health_bar_visibility_system.run_if(in_state(AppState::InGame)),
+                update_health_bar_visibility_system
+                    .after(spawn_hud_system)
+                    .run_if(in_state(AppState::InGame)),
             );
     }
 }
