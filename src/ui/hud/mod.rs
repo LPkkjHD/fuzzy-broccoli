@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use components::*;
+// use components::*;
 use resources::*;
 use systems::*;
 
@@ -15,5 +15,6 @@ impl Plugin for HudPlugin {
         app.add_systems(Startup, load_health_bar_assets);
 
         app.add_systems(OnEnter(AppState::InGame), spawn_hud_system);
+        app.add_systems(OnExit(AppState::InGame), despawn_hud_system);
     }
 }

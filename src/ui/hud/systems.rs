@@ -113,3 +113,12 @@ pub fn load_health_bar_assets(mut commands: Commands, asset_server: Res<AssetSer
     };
     commands.insert_resource(assets);
 }
+
+pub fn despawn_hud_system(
+    mut commands: Commands,
+    hud_query: Query<Entity, With<HealthBarContainer>>,
+) {
+    commands
+        .entity(hud_query.get_single().unwrap())
+        .despawn_recursive();
+}
