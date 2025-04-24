@@ -1,10 +1,11 @@
 use avian2d::prelude::*;
 use bevy::prelude::*;
 use enemy::EnemyPlugin;
-use fuzzy_broccoli::audio::AudioPlugin;
+use fuzzy_broccoli::{audio::AudioPlugin, AppState};
 use main_menu::MainMenuPlugin;
 use map_genreation::MapGenerationPlugin;
 use player::PlayerPlugin;
+use ui::UiPlugin;
 
 mod main_menu;
 
@@ -43,9 +44,12 @@ fn main() {
         EnemyPlugin,
         MapGenerationPlugin,
         AudioPlugin,
+        UiPlugin,
     ));
     app.insert_resource(Gravity(Vec2::ZERO));
 
+    // Add State
+    app.init_state::<AppState>();
 
     // run the app
     app.run();

@@ -11,7 +11,7 @@ pub fn interact_with_play_button(
 ) {
     if let Ok(interaction) = button_query.get_single_mut() {
         match *interaction {
-            Interaction::Pressed => next_app_state.set(AppState::Game),
+            Interaction::Pressed => next_app_state.set(AppState::InGame),
             Interaction::Hovered => {}
             Interaction::None => {}
         }

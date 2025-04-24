@@ -11,6 +11,7 @@
 [Zombie  Assets](https://ittaimanero.itch.io/zombie-apocalypse-tileset)
 [Projectiles](https://bdragon1727.itch.io/fire-pixel-bullet-16x16)
 [Top-Down-Player](https://laplas-games-inc.itch.io/top-down-shooter-asset-pack)
+[Player Life Hearts](https://fliflifly.itch.io/hearts-and-health-bar)
 
 ## Music
 [sount-track](https://alkakrab.itch.io/free-shooter-synthwave-music-pack)
