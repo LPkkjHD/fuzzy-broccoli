@@ -14,6 +14,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform::from_xyz(0.0, 0.0, 0.0),
             // .with_scale(Vec3::new(2.0,2.0,1.0)),
         PlayerMovement::new(100.0),
+        // Add PlayerHealth Component with default values of 3/3 lifes/max_lifes
         PlayerHealth{..default()},
         RigidBody::Kinematic,
         Collider::capsule(16.0, 16.0),
