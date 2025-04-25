@@ -45,6 +45,7 @@ bevy = { version = "0.15.3",default-features=false,  features = [
 ] }
 bevy_kira_audio = "0.22.0"
 bevy_svg = "0.15.1"
+noise = "0.9.0"
 rand = "0.8.5"
 
 # Enable a small amount of optimization in the dev profile.
