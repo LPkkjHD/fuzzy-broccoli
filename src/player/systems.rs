@@ -19,7 +19,6 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         RigidBody::Kinematic,
         Collider::capsule(16.0, 16.0),
         Mass(10.0),
-
     ));
 }
 

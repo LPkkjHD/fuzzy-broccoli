@@ -182,10 +182,10 @@ pub fn update_health_system(
 ) {
     if let Ok(player_health) = player_query.get_single() {
         for (heart_fg, mut visibility) in heart_fg_query.iter_mut() {
-            if heart_fg.index < player_health.current_health() {
-                *visibility = Visibility::Inherited;
+            *visibility = if heart_fg.index < player_health.current_health() {
+                Visibility::Inherited
             } else {
-                *visibility = Visibility::Hidden;
+                Visibility::Hidden
             }
         }
     }
