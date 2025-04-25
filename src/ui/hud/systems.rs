@@ -178,7 +178,7 @@ pub fn update_health_bar_system(
 
 pub fn update_health_system(
     mut heart_fg_query: Query<(&HeartForeground, &mut Visibility)>,
-    player_query: Query<&PlayerHealth, (With<Player>, Changed<PlayerHealth>)>,
+    player_query: Query<&PlayerHealth, (With<Player>, With<PlayerHealth>)>,
 ) {
     if let Ok(player_health) = player_query.get_single() {
         for (heart_fg, mut visibility) in heart_fg_query.iter_mut() {

@@ -42,7 +42,10 @@ impl PlayerHealth {
         }
     }
     pub fn increase_health(self: &mut Self, amount: u8) {
-        self.current_health += amount;
+        let new_health = self.current_health + amount;
+        if new_health <= self.max_health {
+            self.current_health = new_health
+        }
     }
     pub fn decrease_health(self: &mut Self, amount: u8) {
         self.current_health -= amount;
