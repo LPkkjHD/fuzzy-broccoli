@@ -1,5 +1,5 @@
-use avian2d::parry::utils::hashmap::HashMap;
 use bevy::prelude::*;
+use std::collections::HashMap;
 
 #[derive(Resource)]
 pub struct PlayerAnimationFrames(pub HashMap<FacingDirection, Vec<Handle<Image>>>);
@@ -11,11 +11,3 @@ pub enum FacingDirection {
     Left,
     Right,
 }
-
-pub struct DirectionalSprites {
-    pub up: Handle<Image>,
-    pub down: Handle<Image>,
-    pub left: Handle<Image>,
-    pub right: Handle<Image>,
-}
-

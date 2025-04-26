@@ -1,10 +1,14 @@
+use std::collections::HashMap;
+
 use avian2d::prelude::*;
 use bevy::prelude::*;
 
-use super::components::*;
+use super::{
+    components::*,
+    resources::{FacingDirection, PlayerAnimationFrames},
+};
 
 pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let texture_atlas = TextureAtlasBuilder::default();
     commands.spawn((
         Player,
         Sprite{
@@ -19,6 +23,8 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         RigidBody::Kinematic,
         Collider::capsule(16.0, 16.0),
         Mass(10.0),
+        PlayerAnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+        PlayerAnimationFrame(0),
     ));
 }
 
@@ -151,5 +157,50 @@ pub fn player_debug_system(
     }
     if input.just_pressed(KeyCode::KeyL) {
         player_health.increase_max_health(1);
+    }
+}
+
+pub fn setup_player_sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let mut player_frames: HashMap<FacingDirection, Vec<Handle<Image>>> = HashMap::new();
+
+    for direction in [
+        FacingDirection::Down,
+        FacingDirection::Up,
+        FacingDirection::Left,
+    ] {
+        let player_base = match direction {
+            FacingDirection::Up => "476",
+            FacingDirection::Down => "479",
+            FacingDirection::Left => "482",
+            FacingDirection::Right => continue,
+        };
+
+        let frames_vec: Vec<Handle<Image>> = (0..3)
+            .map(|i| {
+            let base = player_base.parse::<i32>().unwrap()+i;
+            let next = base+1;
+            asset_server.load(format!("zombie_apocalypse_tileset/organized_separated_sprites/Player Character Walking Animation Frames/Zombie-Tileset---_0{}_Capa-{}.png", base,next))
+        }).collect();
+        player_frames.insert(direction, frames_vec);
+    }
+    if let Some(left_frames) = player_frames.get(&FacingDirection::Left) {
+        player_frames.insert(FacingDirection::Right, left_frames.clone());
+    }
+    commands.insert_resource(PlayerAnimationFrames(player_frames));
+}
+pub fn player_animation_system(
+    mut query: Query<(&mut PlayerAnimationTimer, &mut PlayerAnimationFrame)>,
+    time: Res<Time>,
+) {
+    for (mut timer, mut frame) in query.iter_mut() {
+        timer.0.tick(time.delta());
+        if timer.0.just_finished() {
+            frame.0 = match frame.0 {
+                0 => 1,
+                1 => 2,
+                2 => 3,
+                _ => 0,
+            };
+        }
     }
 }

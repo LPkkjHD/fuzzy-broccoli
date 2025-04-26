@@ -24,6 +24,12 @@ impl PlayerMovement {
     }
 }
 
+#[derive(Component)]
+pub struct PlayerAnimationTimer(pub Timer);
+
+#[derive(Component)]
+pub struct PlayerAnimationFrame(pub u8);
+
 #[derive(Component, Debug, PartialEq)]
 pub struct PlayerHealth {
     current_health: u8,

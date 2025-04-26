@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use systems::*;
 use components::*;
 
-mod components;
+pub mod components;
 mod systems;
 
 pub struct EnemyPlugin;
