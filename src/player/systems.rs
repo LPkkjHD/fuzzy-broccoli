@@ -51,22 +51,29 @@ pub fn spawn_player_camera(
 
 pub fn player_movement_system(
     time: Res<Time>,
-    mut player_query: Query<(&mut Transform, &PlayerMovementSpeed), With<Player>>,
+    mut player_query: Query<
+        (&mut Transform, &mut FacingDirection, &PlayerMovementSpeed),
+        With<Player>,
+    >,
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
-    for (mut transform, movement) in player_query.iter_mut() {
+    for (mut transform, mut facing_direction, movement) in player_query.iter_mut() {
         let mut direction: Vec3 = Vec3::ZERO;
         if keyboard_input.pressed(KeyCode::ArrowLeft) || keyboard_input.pressed(KeyCode::KeyA) {
             direction += Vec3::new(-1.0, 0.0, 0.0);
+            *facing_direction = FacingDirection::Left;
         }
         if keyboard_input.pressed(KeyCode::ArrowRight) || keyboard_input.pressed(KeyCode::KeyD) {
             direction += Vec3::new(1.0, 0.0, 0.0);
+            *facing_direction = FacingDirection::Right;
         }
         if keyboard_input.pressed(KeyCode::ArrowUp) || keyboard_input.pressed(KeyCode::KeyW) {
             direction += Vec3::new(0.0, 1.0, 0.0);
+            *facing_direction = FacingDirection::Up;
         }
         if keyboard_input.pressed(KeyCode::ArrowDown) || keyboard_input.pressed(KeyCode::KeyS) {
             direction += Vec3::new(0.0, -1.0, 0.0);
+            *facing_direction = FacingDirection::Down;
         }
 
         if direction.length() > 0.0 {
@@ -210,41 +217,20 @@ pub fn player_animation_system(
         (&mut FacingDirection, &mut Sprite, &PlayerAnimationFrame),
         With<Player>,
     >,
-    player_transform_query: Query<&Transform, With<Player>>,
     player_animation_frames: Res<PlayerAnimationFrames>,
 ) {
-    if let Ok(transform) = player_transform_query.get_single() {
-        let player_direction = transform.translation.normalize();
-        let (mut facing_direction, mut sprite, player_animation_frame) =
-            player_animation_query.single_mut();
+    let (mut facing_direction, mut sprite, player_animation_frame) =
+        player_animation_query.single_mut();
 
-        let new_player_direction = if player_direction.x.abs() > player_direction.y.abs() {
-            if player_direction.x > 0.0 {
-                sprite.flip_x = true;
-                FacingDirection::Right
-            } else {
-                sprite.flip_x = false;
-                FacingDirection::Left
-            }
-        } else {
-            sprite.flip_x = false;
-            if player_direction.y > 0.0 {
-                FacingDirection::Up
-            } else {
-                FacingDirection::Down
-            }
-        };
-        *facing_direction = new_player_direction;
-        let frames = &player_animation_frames.0;
-        let direction_frames = &frames[&new_player_direction];
-        let frame_index = match player_animation_frame.0 {
-            0 => 0,
-            1 => 1,
-            2 => 2,
-            3 => 0,
-            _ => 0,
-        };
-        sprite.image = direction_frames[frame_index].clone();
-        sprite.flip_x = new_player_direction == FacingDirection::Right;
-    }
+    let frames = &player_animation_frames.0;
+    let direction_frames = &frames[&facing_direction];
+    let frame_index = match player_animation_frame.0 {
+        0 => 0,
+        1 => 1,
+        2 => 2,
+        3 => 0,
+        _ => 0,
+    };
+    sprite.image = direction_frames[frame_index].clone();
+    sprite.flip_x = *facing_direction == FacingDirection::Right;
 }
