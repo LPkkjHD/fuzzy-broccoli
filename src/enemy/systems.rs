@@ -1,12 +1,11 @@
-use bevy::prelude::*;
-use rand::prelude::*;
-use std::f32::consts::PI;
-use avian2d::collision::Collider;
-use avian2d::prelude::{Mass, RigidBody};
-use std::collections::HashMap;
 use super::components::*;
 use crate::player::components::Player;
-
+use avian2d::collision::Collider;
+use avian2d::prelude::{Mass, RigidBody};
+use bevy::prelude::*;
+use rand::prelude::*;
+use std::collections::HashMap;
+use std::f32::consts::PI;
 
 /// Spawns an enemy with its enemy type, texture, and related components.
 pub fn spawn_enemy_system(
@@ -143,7 +142,7 @@ pub fn enemy_movement_and_direction_system(
             1 => 1,
             2 => 0,
             3 => 2,
-            _ => 0
+            _ => 0,
         };
 
         sprite.image = direction_frames[frame_index].clone();
@@ -151,9 +150,7 @@ pub fn enemy_movement_and_direction_system(
     }
 }
 
-pub fn prevent_enemy_overlap_system(
-    mut query: Query<(&mut Transform, Entity), With<Enemy>>,
-) {
+pub fn prevent_enemy_overlap_system(mut query: Query<(&mut Transform, Entity), With<Enemy>>) {
     let mut enemy_positions: Vec<(Entity, Vec3)> = query
         .iter()
         .map(|(transform, entity)| (entity, transform.translation))
@@ -209,7 +206,11 @@ pub fn setup_enemy_sprites(mut commands: Commands, asset_server: Res<AssetServer
     let mut boss_frames: HashMap<FacingDirection, Vec<Handle<Image>>> = HashMap::new();
 
     // Load frames for each direction and enemy type
-    for direction in [FacingDirection::Down, FacingDirection::Up, FacingDirection::Left] {
+    for direction in [
+        FacingDirection::Down,
+        FacingDirection::Up,
+        FacingDirection::Left,
+    ] {
         let (zombie_base, skeleton_base, boss_base) = match direction {
             FacingDirection::Down => ("394", "430", "412"),
             FacingDirection::Up => ("400", "436", "418"),
@@ -218,9 +219,21 @@ pub fn setup_enemy_sprites(mut commands: Commands, asset_server: Res<AssetServer
         };
 
         let enemy_types = [
-            ("Skinny Walking Zombie Animation", zombie_base, &mut zombie_frames),
-            ("Kid Zombie Animation Frames", skeleton_base, &mut skeleton_frames),
-            ("Big Zombie Walking Animation Frames", boss_base, &mut boss_frames),
+            (
+                "Skinny Walking Zombie Animation",
+                zombie_base,
+                &mut zombie_frames,
+            ),
+            (
+                "Kid Zombie Animation Frames",
+                skeleton_base,
+                &mut skeleton_frames,
+            ),
+            (
+                "Big Zombie Walking Animation Frames",
+                boss_base,
+                &mut boss_frames,
+            ),
         ];
 
         for (folder, base, frames) in enemy_types {

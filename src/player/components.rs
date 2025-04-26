@@ -13,16 +13,9 @@ pub struct AnimationTimer(pub Timer);
 pub struct AnimationFrame(pub u8);
 
 // Component to define player movement speed
-#[derive(Component, Default)]
-pub struct PlayerMovement {
-    pub speed: f32,
-}
+#[derive(Component)]
+pub struct PlayerMovementSpeed (pub  f32);
 
-impl PlayerMovement {
-    pub fn new(speed: f32) -> Self {
-        Self { speed }
-    }
-}
 
 #[derive(Component)]
 pub struct PlayerAnimationTimer(pub Timer);

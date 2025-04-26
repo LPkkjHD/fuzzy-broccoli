@@ -17,7 +17,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         Transform::from_xyz(0.0, 0.0, 0.0),
             // .with_scale(Vec3::new(2.0,2.0,1.0)),
-        PlayerMovement::new(100.0),
+        PlayerMovementSpeed(100.0),
         // Add PlayerHealth Component with default values of 3/3 lifes/max_lifes
         PlayerHealth::new(3),
         RigidBody::Kinematic,
@@ -25,6 +25,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         Mass(10.0),
         PlayerAnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         PlayerAnimationFrame(0),
+        FacingDirection::Down,
     ));
 }
 
@@ -50,7 +51,7 @@ pub fn spawn_player_camera(
 
 pub fn player_movement_system(
     time: Res<Time>,
-    mut player_query: Query<(&mut Transform, &PlayerMovement), With<Player>>,
+    mut player_query: Query<(&mut Transform, &PlayerMovementSpeed), With<Player>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     for (mut transform, movement) in player_query.iter_mut() {
@@ -71,7 +72,7 @@ pub fn player_movement_system(
         if direction.length() > 0.0 {
             direction = direction.normalize();
         }
-        transform.translation += direction * movement.speed * time.delta_secs();
+        transform.translation += direction * movement.0 * time.delta_secs();
     }
 }
 
@@ -188,7 +189,7 @@ pub fn setup_player_sprites(mut commands: Commands, asset_server: Res<AssetServe
     }
     commands.insert_resource(PlayerAnimationFrames(player_frames));
 }
-pub fn player_animation_system(
+pub fn player_animation_tick_system(
     mut query: Query<(&mut PlayerAnimationTimer, &mut PlayerAnimationFrame)>,
     time: Res<Time>,
 ) {
@@ -202,5 +203,48 @@ pub fn player_animation_system(
                 _ => 0,
             };
         }
+    }
+}
+pub fn player_animation_system(
+    mut player_animation_query: Query<
+        (&mut FacingDirection, &mut Sprite, &PlayerAnimationFrame),
+        With<Player>,
+    >,
+    player_transform_query: Query<&Transform, With<Player>>,
+    player_animation_frames: Res<PlayerAnimationFrames>,
+) {
+    if let Ok(transform) = player_transform_query.get_single() {
+        let player_direction = transform.translation.normalize();
+        let (mut facing_direction, mut sprite, player_animation_frame) =
+            player_animation_query.single_mut();
+
+        let new_player_direction = if player_direction.x.abs() > player_direction.y.abs() {
+            if player_direction.x > 0.0 {
+                sprite.flip_x = true;
+                FacingDirection::Right
+            } else {
+                sprite.flip_x = false;
+                FacingDirection::Left
+            }
+        } else {
+            sprite.flip_x = false;
+            if player_direction.y > 0.0 {
+                FacingDirection::Up
+            } else {
+                FacingDirection::Down
+            }
+        };
+        *facing_direction = new_player_direction;
+        let frames = &player_animation_frames.0;
+        let direction_frames = &frames[&new_player_direction];
+        let frame_index = match player_animation_frame.0 {
+            0 => 0,
+            1 => 1,
+            2 => 2,
+            3 => 0,
+            _ => 0,
+        };
+        sprite.image = direction_frames[frame_index].clone();
+        sprite.flip_x = new_player_direction == FacingDirection::Right;
     }
 }
