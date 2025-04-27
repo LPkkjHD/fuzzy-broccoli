@@ -155,7 +155,7 @@ pub fn enemy_movement_and_direction_system(
 }
 
 pub fn prevent_enemy_overlap_system(mut query: Query<(&mut Transform, Entity), With<Enemy>>) {
-    let mut enemy_positions: Vec<(Entity, Vec3)> = query
+    let enemy_positions: Vec<(Entity, Vec3)> = query
         .iter()
         .map(|(transform, entity)| (entity, transform.translation))
         .collect();

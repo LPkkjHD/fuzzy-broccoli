@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use systems::default_system;
 use crate::map_genreation::systems::worley_system;
 
 mod components;

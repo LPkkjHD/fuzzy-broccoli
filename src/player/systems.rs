@@ -220,7 +220,7 @@ pub fn player_animation_system(
     >,
     player_animation_frames: Res<PlayerAnimationFrames>,
 ) {
-    let (mut facing_direction, mut sprite, player_animation_frame) =
+    let (facing_direction, mut sprite, player_animation_frame) =
         player_animation_query.single_mut();
 
     let frames = &player_animation_frames.0;

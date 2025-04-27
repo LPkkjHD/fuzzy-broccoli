@@ -45,18 +45,18 @@ pub enum FacingDirection {
     Right,
 }
 
-/// Holds directional sprite handles for one enemy variant.
-pub struct DirectionalSprites {
-    pub up: Handle<Image>,
-    pub down: Handle<Image>,
-    pub left: Handle<Image>,
-    pub right: Handle<Image>,
-}
-
-/// Resource to store all enemy variant sprites.
-#[derive(Resource)]
-pub struct EnemySprites {
-    pub zombie: DirectionalSprites,
-    pub skeleton: DirectionalSprites,
-    pub boss: DirectionalSprites,
-}
+// /// Holds directional sprite handles for one enemy variant.
+// pub struct DirectionalSprites {
+//     pub up: Handle<Image>,
+//     pub down: Handle<Image>,
+//     pub left: Handle<Image>,
+//     pub right: Handle<Image>,
+// }
+//
+// /// Resource to store all enemy variant sprites.
+// #[derive(Resource)]
+// pub struct EnemySprites {
+//     pub zombie: DirectionalSprites,
+//     pub skeleton: DirectionalSprites,
+//     pub boss: DirectionalSprites,
+// }
