@@ -174,25 +174,26 @@ pub fn setup_player_sprites(mut commands: Commands, asset_server: Res<AssetServe
     for direction in [
         FacingDirection::Down,
         FacingDirection::Up,
-        FacingDirection::Left,
+        FacingDirection::Right,
     ] {
         let player_base = match direction {
-            FacingDirection::Up => "476",
-            FacingDirection::Down => "479",
-            FacingDirection::Left => "482",
-            FacingDirection::Right => continue,
+            FacingDirection::Down => "476",
+            FacingDirection::Right => "479",
+            FacingDirection::Up => "482",
+            FacingDirection::Left => continue,
         };
 
         let frames_vec: Vec<Handle<Image>> = (0..3)
             .map(|i| {
             let base = player_base.parse::<i32>().unwrap()+i;
             let next = base+1;
-            asset_server.load(format!("zombie_apocalypse_tileset/organized_separated_sprites/Player Character Walking Animation Frames/Zombie-Tileset---_0{}_Capa-{}.png", base,next))
+            let animation_path = format!("zombie_apocalypse_tileset/organized_separated_sprites/Player Character Walking Animation Frames/Zombie-Tileset---_0{}_Capa-{}.png", base,next);
+            asset_server.load(animation_path)
         }).collect();
         player_frames.insert(direction, frames_vec);
     }
-    if let Some(left_frames) = player_frames.get(&FacingDirection::Left) {
-        player_frames.insert(FacingDirection::Right, left_frames.clone());
+    if let Some(left_frames) = player_frames.get(&FacingDirection::Right) {
+        player_frames.insert(FacingDirection::Left, left_frames.clone());
     }
     commands.insert_resource(PlayerAnimationFrames(player_frames));
 }
@@ -232,5 +233,5 @@ pub fn player_animation_system(
         _ => 0,
     };
     sprite.image = direction_frames[frame_index].clone();
-    sprite.flip_x = *facing_direction == FacingDirection::Right;
+    sprite.flip_x = *facing_direction == FacingDirection::Left;
 }
