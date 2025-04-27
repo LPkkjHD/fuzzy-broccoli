@@ -5,10 +5,13 @@ use std::collections::HashMap;
 pub struct Enemy;
 
 #[derive(Component)]
+pub struct EnemyHealth(pub f32);
+
+#[derive(Component)]
 pub enum EnemyType {
-    Zombie { speed: f32, health: f32 },
-    Skeleton { speed: f32, health: f32 },
-    Boss { speed: f32, health: f32 },
+    Zombie { speed: f32 },
+    Skeleton { speed: f32 },
+    Boss { speed: f32 },
 }
 
 #[derive(Component, Resource)]

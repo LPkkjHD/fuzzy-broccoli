@@ -1,4 +1,5 @@
 use super::components::*;
+use super::resources::EnemyKillCount;
 use crate::player::components::Player;
 use avian2d::collision::Collider;
 use avian2d::prelude::{Mass, RigidBody};
@@ -34,20 +35,21 @@ pub fn spawn_enemy_system(
             0.0,
         );
 
+        let enemy_health: f32;
         // Choose enemy type based on current wave.
         let enemy_type = match wave_timer.wave {
-            0..=2 => EnemyType::Zombie {
-                speed: 50.0,
-                health: 100.0,
-            },
-            3..=5 => EnemyType::Skeleton {
-                speed: 75.0,
-                health: 75.0,
-            },
-            _ => EnemyType::Boss {
-                speed: 40.0,
-                health: 200.0,
-            },
+            0..=2 => {
+                enemy_health = 100.0;
+                EnemyType::Zombie { speed: 50.0 }
+            }
+            3..=5 => {
+                enemy_health = 75.0;
+                EnemyType::Skeleton { speed: 75.0 }
+            }
+            _ => {
+                enemy_health = 200.0;
+                EnemyType::Boss { speed: 40.0 }
+            }
         };
 
         // Select an initial sprite, default is "down'
@@ -62,6 +64,7 @@ pub fn spawn_enemy_system(
         commands.spawn((
             Enemy,
             enemy_type,
+            EnemyHealth(enemy_health),
             FacingDirection::Down,
             Transform {
                 translation: spawn_position,
@@ -101,7 +104,8 @@ pub fn enemy_movement_and_direction_system(
         Err(_) => return,
     };
 
-    for (mut transform, mut facing, mut sprite, enemy_type, anim_frame) in param_set.p0().iter_mut() {
+    for (mut transform, mut facing, mut sprite, enemy_type, anim_frame) in param_set.p0().iter_mut()
+    {
         let direction = (player_pos - transform.translation).normalize();
         let speed = match enemy_type {
             EnemyType::Zombie { speed, .. } => *speed,
@@ -267,4 +271,31 @@ pub fn setup_enemy_sprites(mut commands: Commands, asset_server: Res<AssetServer
         skeleton: skeleton_frames,
         boss: boss_frames,
     });
+}
+
+pub fn kill_enemy_system(
+    mut commands: Commands,
+    mut kill_count: ResMut<EnemyKillCount>,
+    mut enemy_query: Query<(&EnemyHealth, Entity)>,
+) {
+    for (enemy_health, enemy) in enemy_query.iter_mut() {
+        if enemy_health.0 <= 0.0 {
+            kill_count.0 += 1;
+            info!("Despawn Entity {:?}", enemy);
+            commands.entity(enemy).despawn();
+        }
+    }
+}
+
+pub fn debug_enemy_keybinds_system(
+    input: Res<ButtonInput<KeyCode>>,
+    mut enemy_health_query: Query<&mut EnemyHealth>,
+) {
+    if input.just_pressed(KeyCode::KeyQ) {
+        info!("Pressed Q");
+        if let Some(mut enemy_health) = enemy_health_query.iter_mut().next() {
+            enemy_health.0 = -3.0;
+            info!("Removed Health from Enemy");
+        }
+    }
 }

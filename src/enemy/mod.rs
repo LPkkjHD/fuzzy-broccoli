@@ -1,8 +1,10 @@
 use bevy::prelude::*;
-use systems::*;
 use components::*;
+use resources::EnemyKillCount;
+use systems::*;
 
 pub mod components;
+pub mod resources;
 mod systems;
 
 pub struct EnemyPlugin;
@@ -14,12 +16,19 @@ impl Plugin for EnemyPlugin {
                 timer: Timer::from_seconds(30.0, TimerMode::Repeating),
                 wave: 0,
             })
+            .insert_resource(EnemyKillCount(0))
             .add_systems(Startup, setup_enemy_sprites)
-            .add_systems(Update, (
-                spawn_enemy_system,
-                enemy_movement_and_direction_system,
-                animate_enemy_system,
-                prevent_enemy_overlap_system
-            ));
+            .add_systems(
+                Update,
+                (
+                    spawn_enemy_system,
+                    enemy_movement_and_direction_system,
+                    animate_enemy_system,
+                    prevent_enemy_overlap_system,
+                    kill_enemy_system,
+                ),
+            );
+        #[cfg(debug_assertions)]
+        app.add_systems(Update, debug_enemy_keybinds_system);
     }
 }

@@ -29,3 +29,6 @@ pub enum HealthElementType {
 
 #[derive(Component)]
 pub struct ScoreHudContainer;
+
+#[derive(Component)]
+pub struct KillCountMarker;

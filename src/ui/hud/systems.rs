@@ -1,4 +1,7 @@
-use crate::player::components::{Player, PlayerHealth};
+use crate::{
+    enemy::resources::EnemyKillCount,
+    player::components::{Player, PlayerHealth},
+};
 
 use super::{components::*, HealthBarAssets};
 use bevy::prelude::*;
@@ -191,18 +194,21 @@ pub fn update_health_system(
     }
 }
 
-pub fn spawn_score_widget_system(mut commands: Commands) {
-    commands
-        .spawn((
-            ScoreHudContainer,
-            Node {
-                position_type: PositionType::Absolute,
-                top: Val::Px(10.0),
-                right: Val::Px(10.0),
-                ..default()
-            },
-        ))
-        .with_child(Text::new("Hello World"));
+pub fn spawn_score_widget_system(mut commands: Commands, kill_count_resource: Res<EnemyKillCount>) {
+    let score_container = (
+        ScoreHudContainer,
+        Node {
+            position_type: PositionType::Absolute,
+            top: Val::Px(10.0),
+            right: Val::Px(10.0),
+            ..default()
+        },
+    );
+    let score_text = (
+        KillCountMarker,
+        Text::new(format!("Kills: {}", kill_count_resource.0)),
+    );
+    commands.spawn(score_container).with_child(score_text);
 }
 
 pub fn despawn_score_widget_system(
@@ -211,5 +217,18 @@ pub fn despawn_score_widget_system(
 ) {
     if let Ok(score_hud_entity) = score_hud_query.get_single() {
         commands.entity(score_hud_entity).despawn_recursive();
+    }
+}
+
+pub fn update_score_widget_system(
+    mut score_text_query: Query<&mut Text, With<KillCountMarker>>,
+    score_resource: Res<EnemyKillCount>,
+) {
+    info!(
+        "Score update system triggered for {} kills",
+        score_resource.0
+    ); // Add this log!
+    for mut text in &mut score_text_query {
+        **text = format!("Kills: {}", score_resource.0);
     }
 }

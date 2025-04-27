@@ -6,7 +6,7 @@ use systems::*;
 mod components;
 mod resources;
 mod systems;
-use crate::AppState;
+use crate::{enemy::resources::EnemyKillCount, AppState};
 
 pub struct HudPlugin;
 
@@ -29,6 +29,10 @@ impl Plugin for HudPlugin {
                 update_health_system
                     .after(update_health_bar_system)
                     .run_if(in_state(AppState::InGame)),
+            )
+            .add_systems(
+                Update,
+                update_score_widget_system.run_if(resource_changed::<EnemyKillCount>),
             );
     }
 }
