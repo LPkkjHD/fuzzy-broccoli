@@ -24,3 +24,8 @@ pub enum HealthElementType {
     Border,
     Heart,
 }
+
+// stuff for enemy kill counter
+
+#[derive(Component)]
+pub struct ScoreHudContainer;

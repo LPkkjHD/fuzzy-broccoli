@@ -16,6 +16,8 @@ impl Plugin for HudPlugin {
 
         app.add_systems(OnEnter(AppState::InGame), spawn_health_bar_container_system)
             .add_systems(OnExit(AppState::InGame), despawn_hud_system)
+            .add_systems(OnEnter(AppState::InGame), spawn_score_widget_system)
+            .add_systems(OnExit(AppState::InGame), despawn_score_widget_system)
             .add_systems(
                 Update,
                 update_health_bar_system

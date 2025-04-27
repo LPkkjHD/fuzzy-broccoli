@@ -190,3 +190,26 @@ pub fn update_health_system(
         }
     }
 }
+
+pub fn spawn_score_widget_system(mut commands: Commands) {
+    commands
+        .spawn((
+            ScoreHudContainer,
+            Node {
+                position_type: PositionType::Absolute,
+                top: Val::Px(10.0),
+                right: Val::Px(10.0),
+                ..default()
+            },
+        ))
+        .with_child(Text::new("Hello World"));
+}
+
+pub fn despawn_score_widget_system(
+    mut commands: Commands,
+    score_hud_query: Query<Entity, With<ScoreHudContainer>>,
+) {
+    if let Ok(score_hud_entity) = score_hud_query.get_single() {
+        commands.entity(score_hud_entity).despawn_recursive();
+    }
+}
