@@ -21,7 +21,15 @@ impl Plugin for PlayerPlugin {
         app.add_systems(Update, zoom_control_system);
         app.add_systems(
             Update,
-            (player_animation_tick_system, player_animation_system),
+            (player_animation_tick_system, is_player_moving_system),
+        );
+        app.add_systems(
+            Update,
+            player_movement_animation_system.run_if(in_state(PlayerState::Moving)),
+        );
+        app.add_systems(
+            OnEnter(PlayerState::Idle),
+            set_player_animation_to_start_frame,
         );
         #[cfg(debug_assertions)]
         app.add_systems(Update, player_debug_system);

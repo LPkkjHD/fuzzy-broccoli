@@ -6,6 +6,7 @@ use bevy::prelude::*;
 use super::{
     components::*,
     resources::{FacingDirection, PlayerAnimationFrames},
+    PlayerState,
 };
 
 pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -56,30 +57,53 @@ pub fn player_movement_system(
         With<Player>,
     >,
     keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut next_app_state: ResMut<NextState<PlayerState>>,
 ) {
     for (mut transform, mut facing_direction, movement) in player_query.iter_mut() {
         let mut direction: Vec3 = Vec3::ZERO;
         if keyboard_input.pressed(KeyCode::ArrowLeft) || keyboard_input.pressed(KeyCode::KeyA) {
             direction += Vec3::new(-1.0, 0.0, 0.0);
             *facing_direction = FacingDirection::Left;
+            next_app_state.set(PlayerState::Moving);
         }
         if keyboard_input.pressed(KeyCode::ArrowRight) || keyboard_input.pressed(KeyCode::KeyD) {
             direction += Vec3::new(1.0, 0.0, 0.0);
             *facing_direction = FacingDirection::Right;
+            next_app_state.set(PlayerState::Moving);
         }
         if keyboard_input.pressed(KeyCode::ArrowUp) || keyboard_input.pressed(KeyCode::KeyW) {
             direction += Vec3::new(0.0, 1.0, 0.0);
             *facing_direction = FacingDirection::Up;
+            next_app_state.set(PlayerState::Moving);
         }
         if keyboard_input.pressed(KeyCode::ArrowDown) || keyboard_input.pressed(KeyCode::KeyS) {
             direction += Vec3::new(0.0, -1.0, 0.0);
             *facing_direction = FacingDirection::Down;
+            next_app_state.set(PlayerState::Moving);
         }
 
         if direction.length() > 0.0 {
             direction = direction.normalize();
         }
         transform.translation += direction * movement.0 * time.delta_secs();
+    }
+}
+
+pub fn is_player_moving_system(
+    input: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<PlayerState>>,
+) {
+    if input.any_just_released([
+        KeyCode::ArrowLeft,
+        KeyCode::ArrowDown,
+        KeyCode::ArrowRight,
+        KeyCode::ArrowUp,
+        KeyCode::KeyA,
+        KeyCode::KeyW,
+        KeyCode::KeyS,
+        KeyCode::KeyD,
+    ]) {
+        next_state.set(PlayerState::Idle);
     }
 }
 
@@ -213,7 +237,7 @@ pub fn player_animation_tick_system(
         }
     }
 }
-pub fn player_animation_system(
+pub fn player_movement_animation_system(
     mut player_animation_query: Query<
         (&mut FacingDirection, &mut Sprite, &PlayerAnimationFrame),
         With<Player>,
@@ -234,4 +258,12 @@ pub fn player_animation_system(
     };
     sprite.image = direction_frames[frame_index].clone();
     sprite.flip_x = *facing_direction == FacingDirection::Left;
+}
+
+pub fn set_player_animation_to_start_frame(
+    mut player_frame_query: Query<&mut PlayerAnimationFrame>,
+) {
+    if let Ok(mut frame) = player_frame_query.get_single_mut() {
+        frame.0 = 0;
+    }
 }
