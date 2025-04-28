@@ -12,6 +12,7 @@ impl Plugin for PlayerPlugin {
         // setup_board function is just for testing basic at the beginning.
         #[cfg(debug_assertions)]
         app.add_systems(Startup, setup_board);
+        app.init_state::<PlayerState>();
         app.add_systems(
             Startup,
             (setup_player_sprites, spawn_player, spawn_player_camera).chain(),
@@ -25,4 +26,11 @@ impl Plugin for PlayerPlugin {
         #[cfg(debug_assertions)]
         app.add_systems(Update, player_debug_system);
     }
+}
+
+#[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
+pub enum PlayerState {
+    #[default]
+    Idle,
+    Moving,
 }
