@@ -55,7 +55,6 @@ pub fn spawn_projectile_component(
         RigidBody::Dynamic,
         Collider::round_rectangle(4.0, 1.0, 0.5),
         LinearVelocity(direction_normalized*PROJECTILE_SPEED),
-        LockedAxes::ROTATION_LOCKED,
 
 );
             commands.spawn(projectile_component);

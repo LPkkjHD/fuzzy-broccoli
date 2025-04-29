@@ -2,7 +2,7 @@ use super::components::*;
 use super::resources::EnemyKillCount;
 use crate::player::components::Player;
 use avian2d::collision::Collider;
-use avian2d::prelude::{Mass, RigidBody};
+use avian2d::prelude::*;
 use bevy::prelude::*;
 use rand::prelude::*;
 use std::collections::HashMap;
@@ -81,50 +81,64 @@ pub fn spawn_enemy_system(
             Mass(5.0),
             AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
             AnimationFrame(0),
+            LinearVelocity(Vec2::ZERO), // Start with zero velocity <<< ADDED
+            LockedAxes::ROTATION_LOCKED,
         ));
     }
 }
 /// Handle enemy movment and replace the sprite based on direction and animation state
 pub fn enemy_movement_and_direction_system(
-    mut param_set: ParamSet<(
-        Query<(
-            &mut Transform,
-            &mut FacingDirection,
-            &mut Sprite,
-            &EnemyType,
-            &AnimationFrame,
-        )>,
-        Query<&Transform, With<Player>>,
+    mut enemy_query: Query<(
+        &Transform,
+        &mut LinearVelocity, // <<< ADDED mutable velocity access
+        &mut FacingDirection,
+        &mut Sprite,
+        &EnemyType,
+        &AnimationFrame,
     )>,
-    time: Res<Time>,
+    player_query: Query<&Transform, With<Player>>,
     animation_frames: Res<EnemyAnimationFrames>,
 ) {
-    let player_pos = match param_set.p1().get_single() {
-        Ok(transform) => transform.translation,
-        Err(_) => return,
+    let Ok(player_transform) = player_query.get_single() else {
+        // Optionally set all enemy velocities to zero if player disappears?
+        // for (_, mut vel, ..) in enemy_query.iter_mut() { vel.0 = Vec2::ZERO; }
+        return;
     };
+    let player_pos_2d = player_transform.translation.truncate(); // Use Vec2 for calculations
 
-    for (mut transform, mut facing, mut sprite, enemy_type, anim_frame) in param_set.p0().iter_mut()
+    // Iterate through enemies
+    for (enemy_transform, mut velocity, mut facing, mut sprite, enemy_type, anim_frame) in
+        enemy_query.iter_mut()
     {
-        let direction = (player_pos - transform.translation).normalize();
+        let enemy_pos_2d = enemy_transform.translation.truncate();
+
+        // Calculate direction vector from enemy to player
+        let direction = (player_pos_2d - enemy_pos_2d).normalize_or_zero();
+
+        // Get speed based on enemy type
         let speed = match enemy_type {
             EnemyType::Zombie { speed, .. } => *speed,
             EnemyType::Skeleton { speed, .. } => *speed,
             EnemyType::Boss { speed, .. } => *speed,
         };
-        transform.translation += direction * speed * time.delta_secs();
-        transform.rotation = Quat::IDENTITY;
 
+        // --- Set Linear Velocity ---
+        let target_velocity = direction * speed;
+        velocity.x = target_velocity.x;
+        velocity.y = target_velocity.y;
+        // --- REMOVED: transform.translation += direction * speed * time.delta_secs(); ---
+        // --- REMOVED: transform.rotation = Quat::IDENTITY; ---
+
+        // --- Update Facing Direction and Sprite (Logic remains the same) ---
         let new_direction = if direction.x.abs() > direction.y.abs() {
+            // Horizontal movement is dominant
             if direction.x > 0.0 {
-                sprite.flip_x = true;
                 FacingDirection::Right
             } else {
-                sprite.flip_x = false;
                 FacingDirection::Left
             }
         } else {
-            sprite.flip_x = false;
+            // Vertical movement is dominant (or exactly diagonal)
             if direction.y > 0.0 {
                 FacingDirection::Up
             } else {
@@ -132,25 +146,48 @@ pub fn enemy_movement_and_direction_system(
             }
         };
 
-        *facing = new_direction;
+        // Update facing direction component only if it changed
+        if *facing != new_direction {
+            *facing = new_direction;
+        }
 
-        let frames = match enemy_type {
+        // Load and set the correct animation frame sprite
+        let frames_map = match enemy_type {
             EnemyType::Zombie { .. } => &animation_frames.zombie,
             EnemyType::Skeleton { .. } => &animation_frames.skeleton,
             EnemyType::Boss { .. } => &animation_frames.boss,
         };
 
-        let direction_frames = &frames[&new_direction];
-        let frame_index = match anim_frame.0 {
-            0 => 0,
-            1 => 1,
-            2 => 0,
-            3 => 2,
-            _ => 0,
-        };
+        // Get frames for the current facing direction, handle potential missing entries gracefully
+        if let Some(direction_frames) = frames_map.get(&new_direction) {
+            // Determine animation frame index (same logic as before)
+            let frame_index = match anim_frame.0 {
+                0 => 0,
+                1 => 1,
+                2 => 0, // Ping-pong effect
+                3 => 2,
+                _ => 0, // Default case
+            };
 
-        sprite.image = direction_frames[frame_index].clone();
-        sprite.flip_x = new_direction == FacingDirection::Right;
+            // Ensure frame index is valid for the loaded frames
+            if frame_index < direction_frames.len() {
+                // Update the sprite's texture handle
+                sprite.image = direction_frames[frame_index].clone();
+                // Flip sprite horizontally if facing Right (assuming Left-facing sprites are the source for Right)
+                sprite.flip_x = new_direction == FacingDirection::Right;
+            } else {
+                warn_once!(
+                    "Animation frame index {} out of bounds for direction {:?}!",
+                    frame_index,
+                    new_direction
+                );
+            }
+        } else {
+            warn_once!(
+                "No animation frames found for direction {:?}!",
+                new_direction
+            );
+        }
     }
 }
 
