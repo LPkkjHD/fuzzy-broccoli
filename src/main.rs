@@ -3,9 +3,9 @@ use bevy::prelude::*;
 use enemy::EnemyPlugin;
 use fuzzy_broccoli::{audio::AudioPlugin, AppState};
 use main_menu::MainMenuPlugin;
-use map_genreation::MapGenerationPlugin;
 use player::PlayerPlugin;
 use ui::UiPlugin;
+use crate::map_genreation::TerrainPlugin;
 
 mod main_menu;
 
@@ -46,7 +46,7 @@ fn main() {
         MainMenuPlugin,
         PlayerPlugin,
         EnemyPlugin,
-        MapGenerationPlugin,
+        TerrainPlugin,
         AudioPlugin,
         UiPlugin,
     ));

@@ -1,15 +1,18 @@
-use bevy::asset::{AssetServer, Assets};
-use bevy::math::{UVec2};
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Sprite, TextureAtlas, TextureAtlasLayout, With};
-use bevy::reflect::Array;
-use bevy::utils::{HashMap, HashSet};
-use noise::{NoiseFn, Perlin};
-use rand::Rng;
 use crate::map_genreation::components::{ResetTerrainEvent, Tile, TileComponent};
 use crate::map_genreation::config::{CHUNK_H, CHUNK_W, SPRITE_SHEET_PATH};
 use crate::map_genreation::resources::{CurrentChunks, GenerationSeed, GroundTiles};
 use crate::map_genreation::util::{center_to_top_left, grid_to_chunk, grid_to_world};
 use crate::player::components::{CurrentPlayerChunkPos, PlayerChunkUpdateEvent};
+use bevy::asset::{AssetServer, Assets};
+use bevy::math::UVec2;
+use bevy::prelude::{
+    Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Sprite, TextureAtlas,
+    TextureAtlasLayout, With,
+};
+use bevy::reflect::Array;
+use bevy::utils::{HashMap, HashSet};
+use noise::{NoiseFn, Perlin};
+use rand::Rng;
 
 pub fn handle_terrain_reset_event(
     mut commands: Commands,
@@ -96,7 +99,7 @@ pub fn handle_player_chunk_update_event(
         16,
         41,
         Some(UVec2 { x: 1, y: 3 }),
-        Some(UVec2{x:18,y: 19})
+        Some(UVec2 { x: 18, y: 19 }),
     );
     let texture_atlas_handle = texture_atlas_layouts.add(texture_atlas_layout);
 
@@ -150,7 +153,13 @@ pub fn handle_player_chunk_update_event(
 
             let e = commands
                 .spawn((
-                    Sprite::from_atlas_image(texture_handle.clone(), TextureAtlas {layout: texture_atlas_handle.clone(), index: t.sprite}),
+                    Sprite::from_atlas_image(
+                        texture_handle.clone(),
+                        TextureAtlas {
+                            layout: texture_atlas_handle.clone(),
+                            index: t.sprite,
+                        },
+                    ),
                     TileComponent,
                 ))
                 .id();
@@ -263,12 +272,30 @@ pub fn process_tile((x, y): (i32, i32), occupied: &HashSet<(i32, i32)>) -> (i32,
     let nei_options = [(-1, 0), (1, 0), (0, -1), (0, 1)];
     let mut nei = [1, 1, 1, 1];
     let mut nei_count = 4;
-    for (idx, (i, j)) in nei_options.iter().enumerate() {
+    for idx in 0..nei_options.len() {
+        let (i, j) = nei_options[idx];
         if !occupied.contains(&(x + i, y + j)) {
             nei[idx] = 0;
             nei_count -= 1;
         }
     }
+    /*
+    Danke Rust
+    268 |         for (idx, (i, j)) in nei_options.iter().enumerate() {
+    |                   ^^^^^^     ------------------------------ this is an iterator with items of type `(usize, &dyn PartialReflect)`
+    |                   |
+    |                   expected `dyn PartialReflect`, found `(_, _)`
+    |
+    = note: expected trait object `dyn PartialReflect`
+                      found tuple `(_, _)`
+    = help: `(_, _)` implements `PartialReflect` so you could box the found value and coerce it to the trait object `Box<dyn PartialReflect>`, you will have to change the expected type as well
+     */
+    // for (idx, (i, j)) in nei_options.iter().enumerate() {
+    //     if !occupied.contains(&(x + i, y + j)) {
+    //         nei[idx] = 0;
+    //         nei_count -= 1;
+    //     }
+    // }
 
     let tile = match nei {
         [0, 1, 1, 0] => 3,
@@ -280,4 +307,3 @@ pub fn process_tile((x, y): (i32, i32), occupied: &HashSet<(i32, i32)>) -> (i32,
 
     (nei_count, tile)
 }
-
