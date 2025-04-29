@@ -34,7 +34,7 @@ fn main() {
             })
             .set(ImagePlugin::default_nearest()),
         bevy_svg::prelude::SvgPlugin,
-        PhysicsPlugins::default(),
+        PhysicsPlugins::default().set(PhysicsInterpolationPlugin::interpolate_all()),
     ));
 
     // Add debug plugins for rendering colliders etc

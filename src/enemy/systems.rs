@@ -77,7 +77,7 @@ pub fn spawn_enemy_system(
                 ..Default::default()
             },
             RigidBody::Dynamic,
-            Collider::capsule(16.0, 16.0),
+            Collider::round_rectangle(16.0, 20.0, 4.0),
             Mass(5.0),
             AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
             AnimationFrame(0),

@@ -14,6 +14,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         Player,
         Sprite{
             image: asset_server.load("zombie_apocalypse_tileset/organized_separated_sprites/Player Character Walking Animation Frames/Zombie-Tileset---_0476_Capa-477.png"),
+            custom_size: Some(Vec2::new(32.0,32.0)),
             ..default()
         },
         Transform::from_xyz(0.0, 0.0, 0.0),
@@ -22,7 +23,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         // Add PlayerHealth Component with default values of 3/3 lifes/max_lifes
         PlayerHealth::new(3),
         RigidBody::Kinematic,
-        Collider::capsule(16.0, 16.0),
+        Collider::round_rectangle(17.0, 20.0, 4.0),
         Mass(10.0),
         PlayerAnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         PlayerAnimationFrame(0),
