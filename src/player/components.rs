@@ -14,8 +14,7 @@ pub struct AnimationFrame(pub u8);
 
 // Component to define player movement speed
 #[derive(Component)]
-pub struct PlayerMovementSpeed (pub  f32);
-
+pub struct PlayerMovementSpeed(pub f32);
 
 #[derive(Component)]
 pub struct PlayerAnimationTimer(pub Timer);

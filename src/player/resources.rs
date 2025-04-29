@@ -11,3 +11,6 @@ pub enum PlayerFacingDirection {
     Left,
     Right,
 }
+
+#[derive(Resource, Default)]
+pub struct WorldMouseCoordinates(pub Vec2);

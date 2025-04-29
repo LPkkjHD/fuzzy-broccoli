@@ -13,5 +13,7 @@
 [Top-Down-Player](https://laplas-games-inc.itch.io/top-down-shooter-asset-pack)
 [Player Life Hearts](https://fliflifly.itch.io/hearts-and-health-bar)
 
+[Crosshair](https://s-a-t-u-r-n.itch.io/crosshair-for-your-shooter-2d-games)
+
 ## Music
 [sount-track](https://alkakrab.itch.io/free-shooter-synthwave-music-pack)

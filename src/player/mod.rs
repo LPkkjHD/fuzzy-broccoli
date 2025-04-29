@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use pistol::PistolPlugin;
+use resources::WorldMouseCoordinates;
 use systems::*;
 
 pub mod components;
@@ -25,7 +26,11 @@ impl Plugin for PlayerPlugin {
         app.add_systems(Update, zoom_control_system);
         app.add_systems(
             Update,
-            (player_animation_tick_system, is_player_moving_system),
+            (
+                player_animation_tick_system,
+                cursor_system,
+                fire_weapon_system,
+            ),
         );
         app.add_systems(
             Update,
@@ -37,6 +42,8 @@ impl Plugin for PlayerPlugin {
         );
         #[cfg(debug_assertions)]
         app.add_systems(Update, player_debug_system);
+
+        app.init_resource::<WorldMouseCoordinates>();
     }
 }
 

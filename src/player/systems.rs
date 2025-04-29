@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
 use avian2d::prelude::*;
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 
 use super::{
     components::*,
-    resources::{PlayerAnimationFrames, PlayerFacingDirection},
+    pistol::events::WeaponFiredEvent,
+    resources::{PlayerAnimationFrames, PlayerFacingDirection, WorldMouseCoordinates},
     PlayerState,
 };
 
@@ -52,10 +53,9 @@ pub fn spawn_player_camera(
 }
 
 pub fn player_movement_system(
-    time: Res<Time>,
     mut player_query: Query<
         (
-            &mut Transform,
+            &mut LinearVelocity,
             &mut PlayerFacingDirection,
             &PlayerMovementSpeed,
         ),
@@ -64,51 +64,35 @@ pub fn player_movement_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut next_app_state: ResMut<NextState<PlayerState>>,
 ) {
-    for (mut transform, mut facing_direction, movement) in player_query.iter_mut() {
-        let mut direction: Vec3 = Vec3::ZERO;
+    if let Ok((mut velocity, mut facing_direction, movement_speed)) = player_query.get_single_mut()
+    {
+        let mut direction: Vec2 = Vec2::ZERO;
         if keyboard_input.pressed(KeyCode::ArrowLeft) || keyboard_input.pressed(KeyCode::KeyA) {
-            direction += Vec3::new(-1.0, 0.0, 0.0);
+            direction.x -= 1.0;
             *facing_direction = PlayerFacingDirection::Left;
-            next_app_state.set(PlayerState::Moving);
         }
         if keyboard_input.pressed(KeyCode::ArrowRight) || keyboard_input.pressed(KeyCode::KeyD) {
-            direction += Vec3::new(1.0, 0.0, 0.0);
+            direction.x += 1.0;
             *facing_direction = PlayerFacingDirection::Right;
-            next_app_state.set(PlayerState::Moving);
         }
         if keyboard_input.pressed(KeyCode::ArrowUp) || keyboard_input.pressed(KeyCode::KeyW) {
-            direction += Vec3::new(0.0, 1.0, 0.0);
+            direction.y += 1.0;
             *facing_direction = PlayerFacingDirection::Up;
-            next_app_state.set(PlayerState::Moving);
         }
         if keyboard_input.pressed(KeyCode::ArrowDown) || keyboard_input.pressed(KeyCode::KeyS) {
-            direction += Vec3::new(0.0, -1.0, 0.0);
+            direction.y -= 1.0;
             *facing_direction = PlayerFacingDirection::Down;
+        }
+        let move_delta = direction.normalize_or_zero() * movement_speed.0;
+
+        velocity.x = move_delta.x;
+        velocity.y = move_delta.y;
+
+        if direction != Vec2::ZERO {
             next_app_state.set(PlayerState::Moving);
+        } else {
+            next_app_state.set(PlayerState::Idle);
         }
-
-        if direction.length() > 0.0 {
-            direction = direction.normalize();
-        }
-        transform.translation += direction * movement.0 * time.delta_secs();
-    }
-}
-
-pub fn is_player_moving_system(
-    input: Res<ButtonInput<KeyCode>>,
-    mut next_state: ResMut<NextState<PlayerState>>,
-) {
-    if input.any_just_released([
-        KeyCode::ArrowLeft,
-        KeyCode::ArrowDown,
-        KeyCode::ArrowRight,
-        KeyCode::ArrowUp,
-        KeyCode::KeyA,
-        KeyCode::KeyW,
-        KeyCode::KeyS,
-        KeyCode::KeyD,
-    ]) {
-        next_state.set(PlayerState::Idle);
     }
 }
 
@@ -274,5 +258,33 @@ pub fn set_player_animation_to_start_frame(
 ) {
     if let Ok(mut frame) = player_frame_query.get_single_mut() {
         frame.0 = 0;
+    }
+}
+
+pub fn fire_weapon_system(
+    input: Res<ButtonInput<MouseButton>>,
+    mut event_writer: EventWriter<WeaponFiredEvent>,
+    cursor_position: Res<WorldMouseCoordinates>,
+) {
+    if input.just_pressed(MouseButton::Left) {
+        event_writer.send(WeaponFiredEvent(cursor_position.0));
+    }
+}
+
+pub fn cursor_system(
+    mut mycoords: ResMut<WorldMouseCoordinates>,
+    q_window: Query<&Window, With<PrimaryWindow>>,
+    q_camera: Query<(&Camera, &GlobalTransform), With<PlayerCamera>>,
+) {
+    let (camera, camera_transform) = q_camera.single();
+    let window = q_window.single();
+
+    if let Some(world_position) = window
+        .cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor).ok())
+        .map(|ray| ray.origin.truncate())
+    {
+        mycoords.0 = world_position;
+        // eprintln!("World coords: {}/{}", world_position.x, world_position.y);
     }
 }
