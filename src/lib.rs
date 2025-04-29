@@ -8,6 +8,7 @@ pub mod enemy;
 pub mod map_genreation;
 pub mod player;
 pub mod ui;
+pub mod collision;
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub enum AppState {

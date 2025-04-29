@@ -1,5 +1,6 @@
 use super::components::*;
 use super::resources::EnemyKillCount;
+use crate::collision::GameLayer;
 use crate::player::components::Player;
 use avian2d::collision::Collider;
 use avian2d::prelude::*;
@@ -83,6 +84,10 @@ pub fn spawn_enemy_system(
             AnimationFrame(0),
             LinearVelocity(Vec2::ZERO), // Start with zero velocity <<< ADDED
             LockedAxes::ROTATION_LOCKED,
+            CollisionLayers::new(
+                GameLayer::ENEMY,
+                [GameLayer::ENEMY, GameLayer::PROJECTILE, GameLayer::PLAYER],
+            ),
         ));
     }
 }

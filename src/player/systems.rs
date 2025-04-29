@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use avian2d::prelude::*;
 use bevy::{prelude::*, window::PrimaryWindow};
 
+use crate::collision::GameLayer;
+
 use super::{
     components::*,
     pistol::events::WeaponFiredEvent,
@@ -29,6 +31,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         PlayerAnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         PlayerAnimationFrame(0),
         PlayerFacingDirection::Down,
+        CollisionLayers::new(GameLayer::PLAYER, [GameLayer::ENEMY]),
     ));
 }
 

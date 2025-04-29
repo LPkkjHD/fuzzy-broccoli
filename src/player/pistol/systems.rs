@@ -1,7 +1,7 @@
-use avian2d::prelude::{Collider, LinearVelocity, LockedAxes, RigidBody};
+use avian2d::prelude::{Collider, CollisionLayers, LinearVelocity, LockedAxes, RigidBody};
 use bevy::prelude::*;
 
-use crate::player::components::Player;
+use crate::{collision::GameLayer, player::components::Player};
 
 use super::{
     components::{AttacksPerSecond, Damage, Pistol, Projectile},
@@ -55,6 +55,7 @@ pub fn spawn_projectile_component(
         RigidBody::Dynamic,
         Collider::round_rectangle(4.0, 1.0, 0.5),
         LinearVelocity(direction_normalized*PROJECTILE_SPEED),
+                CollisionLayers::new(GameLayer::PROJECTILE, [GameLayer::ENEMY]),
 
 );
             commands.spawn(projectile_component);

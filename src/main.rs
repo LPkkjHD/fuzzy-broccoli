@@ -14,6 +14,7 @@ mod enemy;
 mod map_genreation;
 pub mod player;
 mod ui;
+pub mod collision;
 
 fn main() {
     let app_name = if cfg!(debug_assertions) {
