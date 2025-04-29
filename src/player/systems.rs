@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use avian2d::prelude::*;
 use bevy::{prelude::*, window::PrimaryWindow};
-
+use crate::map_genreation::util::{center_to_top_left_grid, grid_to_chunk, world_to_grid};
 use super::{
     components::*,
     pistol::events::WeaponFiredEvent,
@@ -95,6 +95,31 @@ pub fn player_movement_system(
         }
     }
 }
+
+pub fn update_player_chunk_pos(
+    mut chunk_pos: ResMut<CurrentPlayerChunkPos>,
+    mut ev_chunk_update: EventWriter<PlayerChunkUpdateEvent>,
+    player_query: Query<&Transform, With<Player>>,
+) {
+    if player_query.is_empty() {
+        return;
+    }
+
+    let transform = player_query.single();
+    let (x, y) = (transform.translation.x, transform.translation.y);
+    let (a, b) = world_to_grid(x, y);
+    let (a, b) = center_to_top_left_grid(a, b);
+    let (x, y) = grid_to_chunk(a, b);
+
+    let (old_x, old_y) = chunk_pos.0;
+    if old_x == x && old_y == y {
+        return;
+    }
+
+    ev_chunk_update.send(PlayerChunkUpdateEvent((x, y)));
+    chunk_pos.0 = (x, y);
+}
+
 
 pub fn move_camera(
     time: Res<Time>,

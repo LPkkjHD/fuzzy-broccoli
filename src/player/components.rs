@@ -22,6 +22,16 @@ pub struct PlayerAnimationTimer(pub Timer);
 #[derive(Component)]
 pub struct PlayerAnimationFrame(pub u8);
 
+#[derive(Resource)]
+struct DefaultAtlasHandle(pub Option<Handle<TextureAtlasLayout>>);
+
+#[derive(Resource, Default)]
+pub struct CurrentPlayerChunkPos(pub (i32, i32));
+
+#[derive(Event)]
+pub struct PlayerChunkUpdateEvent(pub (i32, i32));
+
+
 #[derive(Component, Debug, PartialEq)]
 pub struct PlayerHealth {
     current_health: u8,
