@@ -1,14 +1,18 @@
 use bevy::prelude::*;
+use pistol::PistolPlugin;
 use systems::*;
 
 pub mod components;
 mod resources;
 mod systems;
 
+pub mod pistol;
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
+        app.add_plugins(PistolPlugin);
         // setup_board function is just for testing basic at the beginning.
         #[cfg(debug_assertions)]
         app.add_systems(Startup, setup_board);

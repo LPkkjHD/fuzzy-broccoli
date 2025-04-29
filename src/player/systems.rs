@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 use super::{
     components::*,
-    resources::{FacingDirection, PlayerAnimationFrames},
+    resources::{PlayerAnimationFrames, PlayerFacingDirection},
     PlayerState,
 };
 
@@ -26,7 +26,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         Mass(10.0),
         PlayerAnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         PlayerAnimationFrame(0),
-        FacingDirection::Down,
+        PlayerFacingDirection::Down,
     ));
 }
 
@@ -53,7 +53,11 @@ pub fn spawn_player_camera(
 pub fn player_movement_system(
     time: Res<Time>,
     mut player_query: Query<
-        (&mut Transform, &mut FacingDirection, &PlayerMovementSpeed),
+        (
+            &mut Transform,
+            &mut PlayerFacingDirection,
+            &PlayerMovementSpeed,
+        ),
         With<Player>,
     >,
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -63,22 +67,22 @@ pub fn player_movement_system(
         let mut direction: Vec3 = Vec3::ZERO;
         if keyboard_input.pressed(KeyCode::ArrowLeft) || keyboard_input.pressed(KeyCode::KeyA) {
             direction += Vec3::new(-1.0, 0.0, 0.0);
-            *facing_direction = FacingDirection::Left;
+            *facing_direction = PlayerFacingDirection::Left;
             next_app_state.set(PlayerState::Moving);
         }
         if keyboard_input.pressed(KeyCode::ArrowRight) || keyboard_input.pressed(KeyCode::KeyD) {
             direction += Vec3::new(1.0, 0.0, 0.0);
-            *facing_direction = FacingDirection::Right;
+            *facing_direction = PlayerFacingDirection::Right;
             next_app_state.set(PlayerState::Moving);
         }
         if keyboard_input.pressed(KeyCode::ArrowUp) || keyboard_input.pressed(KeyCode::KeyW) {
             direction += Vec3::new(0.0, 1.0, 0.0);
-            *facing_direction = FacingDirection::Up;
+            *facing_direction = PlayerFacingDirection::Up;
             next_app_state.set(PlayerState::Moving);
         }
         if keyboard_input.pressed(KeyCode::ArrowDown) || keyboard_input.pressed(KeyCode::KeyS) {
             direction += Vec3::new(0.0, -1.0, 0.0);
-            *facing_direction = FacingDirection::Down;
+            *facing_direction = PlayerFacingDirection::Down;
             next_app_state.set(PlayerState::Moving);
         }
 
@@ -193,18 +197,18 @@ pub fn player_debug_system(
 }
 
 pub fn setup_player_sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let mut player_frames: HashMap<FacingDirection, Vec<Handle<Image>>> = HashMap::new();
+    let mut player_frames: HashMap<PlayerFacingDirection, Vec<Handle<Image>>> = HashMap::new();
 
     for direction in [
-        FacingDirection::Down,
-        FacingDirection::Up,
-        FacingDirection::Right,
+        PlayerFacingDirection::Down,
+        PlayerFacingDirection::Up,
+        PlayerFacingDirection::Right,
     ] {
         let player_base = match direction {
-            FacingDirection::Down => "476",
-            FacingDirection::Right => "479",
-            FacingDirection::Up => "482",
-            FacingDirection::Left => continue,
+            PlayerFacingDirection::Down => "476",
+            PlayerFacingDirection::Right => "479",
+            PlayerFacingDirection::Up => "482",
+            PlayerFacingDirection::Left => continue,
         };
 
         let frames_vec: Vec<Handle<Image>> = (0..3)
@@ -216,8 +220,8 @@ pub fn setup_player_sprites(mut commands: Commands, asset_server: Res<AssetServe
         }).collect();
         player_frames.insert(direction, frames_vec);
     }
-    if let Some(left_frames) = player_frames.get(&FacingDirection::Right) {
-        player_frames.insert(FacingDirection::Left, left_frames.clone());
+    if let Some(left_frames) = player_frames.get(&PlayerFacingDirection::Right) {
+        player_frames.insert(PlayerFacingDirection::Left, left_frames.clone());
     }
     commands.insert_resource(PlayerAnimationFrames(player_frames));
 }
@@ -239,7 +243,11 @@ pub fn player_animation_tick_system(
 }
 pub fn player_movement_animation_system(
     mut player_animation_query: Query<
-        (&mut FacingDirection, &mut Sprite, &PlayerAnimationFrame),
+        (
+            &mut PlayerFacingDirection,
+            &mut Sprite,
+            &PlayerAnimationFrame,
+        ),
         With<Player>,
     >,
     player_animation_frames: Res<PlayerAnimationFrames>,
@@ -252,12 +260,12 @@ pub fn player_movement_animation_system(
     let frame_index = match player_animation_frame.0 {
         0 => 0,
         1 => 1,
-        2 => 2,
-        3 => 0,
+        2 => 0,
+        3 => 2,
         _ => 0,
     };
     sprite.image = direction_frames[frame_index].clone();
-    sprite.flip_x = *facing_direction == FacingDirection::Left;
+    sprite.flip_x = *facing_direction == PlayerFacingDirection::Left;
 }
 
 pub fn set_player_animation_to_start_frame(
