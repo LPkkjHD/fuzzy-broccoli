@@ -264,12 +264,16 @@ pub fn set_player_animation_to_start_frame(
     }
 }
 
+// For some reason mouse has insane input lag on macos. FML
 pub fn fire_weapon_system(
-    input: Res<ButtonInput<MouseButton>>,
+    mouse_input: Res<ButtonInput<MouseButton>>,
+    key_input: Res<ButtonInput<KeyCode>>,
     mut event_writer: EventWriter<WeaponFiredEvent>,
     cursor_position: Res<WorldMouseCoordinates>,
 ) {
-    if input.just_pressed(MouseButton::Left) {
+    if mouse_input.just_pressed(MouseButton::Left) {
+        event_writer.send(WeaponFiredEvent(cursor_position.0));
+    } else if key_input.just_pressed(KeyCode::Enter) {
         event_writer.send(WeaponFiredEvent(cursor_position.0));
     }
 }
