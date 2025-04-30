@@ -51,6 +51,8 @@ pub fn spawn_projectile_component(
             let target_world_position = event.0;
             let direction_vector = target_world_position - weapon_world_position;
             let direction_normalized = direction_vector.normalize();
+            let angle_radians = direction_normalized.y.atan2(direction_normalized.x);
+            let rotation = Quat::from_rotation_z(angle_radians);
             let projectile_component = (
         Projectile,
         Sprite {
@@ -58,7 +60,7 @@ pub fn spawn_projectile_component(
             ..default()
 
         },
-                Transform::from_translation(weapon_position),
+                Transform::from_translation(weapon_position).with_rotation(rotation),
         RigidBody::Dynamic,
         Collider::round_rectangle(4.0, 1.0, 0.5),
                 LockedAxes::ROTATION_LOCKED,
