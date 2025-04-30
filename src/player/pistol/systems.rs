@@ -1,7 +1,14 @@
-use avian2d::prelude::{Collider, CollisionLayers, LinearVelocity, LockedAxes, RigidBody};
+use avian2d::prelude::{
+    Collider, Collision, CollisionLayers, Collisions, LinearVelocity, LockedAxes, RigidBody,
+    SweptCcd,
+};
 use bevy::prelude::*;
 
-use crate::{collision::GameLayer, player::components::Player};
+use crate::{
+    collision::{self, GameLayer},
+    enemy::components::{Enemy, EnemyHealth},
+    player::components::Player,
+};
 
 use super::{
     components::{AttacksPerSecond, Damage, Pistol, Projectile},
@@ -54,9 +61,10 @@ pub fn spawn_projectile_component(
                 Transform::from_translation(weapon_position),
         RigidBody::Dynamic,
         Collider::round_rectangle(4.0, 1.0, 0.5),
+                LockedAxes::ROTATION_LOCKED,
         LinearVelocity(direction_normalized*PROJECTILE_SPEED),
                 CollisionLayers::new(GameLayer::PROJECTILE, [GameLayer::ENEMY]),
-
+                SweptCcd::default(),
 );
             commands.spawn(projectile_component);
             // event.0
@@ -76,5 +84,29 @@ pub fn despawn_projectile_component(
 pub fn despawn_pistol(mut commands: Commands, pistol_query: Query<Entity, With<Pistol>>) {
     if let Ok(entity) = pistol_query.get_single() {
         commands.entity(entity).despawn();
+    }
+}
+
+pub fn projectile_enemy_collision_damage_system(
+    mut commands: Commands,
+    projectile_query: Query<Entity, With<Projectile>>,
+    weapon_damage_query: Query<&Damage, With<Pistol>>,
+    mut enemy_query: Query<&mut EnemyHealth, With<Enemy>>,
+    mut collision_events: EventReader<Collision>,
+) {
+    let damage = weapon_damage_query.single().0;
+    for collision in collision_events.read() {
+        if let Ok(projectile) = projectile_query.get(collision.0.entity1) {
+            if let Ok(mut enemy_health) = enemy_query.get_mut(collision.0.entity2) {
+                enemy_health.0 -= damage;
+                commands.entity(projectile).despawn();
+            }
+        }
+        if let Ok(projectile) = projectile_query.get(collision.0.entity2) {
+            if let Ok(mut enemy_health) = enemy_query.get_mut(collision.0.entity1) {
+                enemy_health.0 -= damage;
+                commands.entity(projectile).despawn();
+            }
+        }
     }
 }

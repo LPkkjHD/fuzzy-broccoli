@@ -3,6 +3,8 @@ use components::*;
 use resources::EnemyKillCount;
 use systems::*;
 
+use crate::AppState;
+
 pub mod components;
 pub mod resources;
 mod systems;
@@ -26,7 +28,8 @@ impl Plugin for EnemyPlugin {
                     animate_enemy_system,
                     prevent_enemy_overlap_system,
                     kill_enemy_system,
-                ),
+                )
+                    .run_if(in_state(AppState::InGame)),
             );
         #[cfg(debug_assertions)]
         app.add_systems(Update, debug_enemy_keybinds_system);

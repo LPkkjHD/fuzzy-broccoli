@@ -4,7 +4,7 @@ use std::collections::HashMap;
 #[derive(Component)]
 pub struct Enemy;
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct EnemyHealth(pub f32);
 
 #[derive(Component)]
