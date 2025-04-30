@@ -1,5 +1,5 @@
 use avian2d::prelude::{
-    Collider, Collision, CollisionLayers, Collisions, LinearVelocity, LockedAxes, RigidBody,
+    Collider, Collision, CollisionLayers, LinearVelocity, LockedAxes, RigidBody,
     SweptCcd,
 };
 use bevy::prelude::*;

@@ -31,7 +31,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         PlayerAnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         PlayerAnimationFrame(0),
         PlayerFacingDirection::Down,
-        CollisionLayers::new(GameLayer::PLAYER, [GameLayer::ENEMY]),
+        CollisionLayers::new(GameLayer::PLAYER, [GameLayer::ENEMY, GameLayer::PLAYER]),
     ));
 }
 

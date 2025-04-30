@@ -86,7 +86,12 @@ pub fn spawn_enemy_system(
             LockedAxes::ROTATION_LOCKED,
             CollisionLayers::new(
                 GameLayer::ENEMY,
-                [GameLayer::ENEMY, GameLayer::PROJECTILE, GameLayer::PLAYER],
+                [
+                    GameLayer::ENEMY,
+                    GameLayer::PROJECTILE,
+                    GameLayer::PLAYER,
+                    GameLayer::ENEMY,
+                ],
             ),
         ));
     }
