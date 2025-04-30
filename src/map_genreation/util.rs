@@ -1,4 +1,3 @@
-use crate::*;
 use crate::map_genreation::config::*;
 
 pub fn grid_to_world(x: f32, y: f32) -> (f32, f32) {
@@ -30,9 +29,4 @@ pub fn center_to_top_left(x: f32, y: f32) -> (f32, f32) {
 pub fn grid_to_chunk(x: f32, y: f32) -> (i32, i32) {
     let (x, y) = (x / CHUNK_W as f32, y / CHUNK_H as f32);
     (x.floor() as i32, y.floor() as i32)
-}
-
-pub fn world_to_chunk(x: f32, y: f32) -> (i32, i32) {
-    let (x, y) = world_to_grid(x, y);
-    grid_to_chunk(x, y)
 }

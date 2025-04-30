@@ -10,8 +10,7 @@ use bevy::prelude::{
     TextureAtlasLayout, Transform, With,
 };
 use bevy::reflect::Array;
-use bevy::utils::{HashMap, HashSet};
-use log::log;
+use bevy::utils::HashSet;
 use noise::{NoiseFn, Perlin};
 use rand::Rng;
 
@@ -94,7 +93,6 @@ pub fn handle_player_chunk_update_event(
         return;
     }
 
-    let mut rng = rand::thread_rng();
     let texture_handle = asset_server.load(SPRITE_SHEET_PATH);
     let texture_atlas_layout = TextureAtlasLayout::from_grid(
         UVec2::splat(16),

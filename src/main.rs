@@ -39,7 +39,7 @@ fn main() {
 
     // Add debug plugins for rendering colliders etc
     #[cfg(debug_assertions)]
-    app.add_plugins((PhysicsDebugPlugin::default()));
+    app.add_plugins(PhysicsDebugPlugin::default());
 
     // Add custom plugins
     app.add_plugins((
