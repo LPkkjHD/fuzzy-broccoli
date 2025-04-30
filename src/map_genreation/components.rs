@@ -5,11 +5,11 @@ pub struct TileComponent;
 #[derive(Event)]
 pub struct ResetTerrainEvent;
 
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Eq, PartialEq, Hash, Debug)]
 pub struct Tile {
     pub(crate) pos: (i32, i32),
     pub(crate) sprite: usize,
-    z_index: i32,
+    pub(crate) z_index: i32,
 }
 
 impl Tile {

@@ -17,7 +17,7 @@ impl Plugin for PlayerPlugin {
         app.add_plugins(PistolPlugin);
         // setup_board function is just for testing basic at the beginning.
         #[cfg(debug_assertions)]
-        app.add_systems(Startup, setup_board);
+        //app.add_systems(Startup, setup_board);
         app.init_state::<PlayerState>();
         app.insert_resource(CurrentPlayerChunkPos::default());
         app.add_systems(

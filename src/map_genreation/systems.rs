@@ -1,18 +1,16 @@
 use crate::map_genreation::components::{ResetTerrainEvent, Tile, TileComponent};
-use crate::map_genreation::config::{CHUNK_H, CHUNK_W, SPRITE_SHEET_PATH};
+use crate::map_genreation::config::{CHUNK_H, CHUNK_W, SPRITE_SCALE_FACTOR, SPRITE_SHEET_PATH};
 use crate::map_genreation::resources::{CurrentChunks, GenerationSeed, GroundTiles};
 use crate::map_genreation::util::{center_to_top_left, grid_to_chunk, grid_to_world};
 use crate::player::components::{CurrentPlayerChunkPos, PlayerChunkUpdateEvent};
 use bevy::asset::{AssetServer, Assets};
-use bevy::math::UVec2;
-use bevy::prelude::{
-    Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Sprite, TextureAtlas,
-    TextureAtlasLayout, With,
-};
+use bevy::math::{UVec2, Vec3};
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Sprite, TextureAtlas, TextureAtlasLayout, Transform, With};
 use bevy::reflect::Array;
 use bevy::utils::{HashMap, HashSet};
 use noise::{NoiseFn, Perlin};
 use rand::Rng;
+use log::log;
 
 pub fn handle_terrain_reset_event(
     mut commands: Commands,
@@ -96,10 +94,11 @@ pub fn handle_player_chunk_update_event(
     let texture_handle = asset_server.load(SPRITE_SHEET_PATH);
     let texture_atlas_layout = TextureAtlasLayout::from_grid(
         UVec2::splat(16),
-        16,
-        41,
+        28,
+        13,
         Some(UVec2 { x: 1, y: 3 }),
-        Some(UVec2 { x: 18, y: 19 }),
+        None
+        //Some(UVec2 { x: 18, y: 19 }),
     );
     let texture_atlas_handle = texture_atlas_layouts.add(texture_atlas_layout);
 
@@ -142,7 +141,7 @@ pub fn handle_player_chunk_update_event(
             // Ignore edges
             // This will help in better player visualization when going from land to water
             updated_ground_map.insert((*x, *y));
-            tiles.insert(Tile::new((*x, *y), tile, 0));
+            tiles.insert(Tile::new((*x, *y), 319, 0));
         }
         ground_tiles.0.extend(updated_ground_map);
 
@@ -160,6 +159,7 @@ pub fn handle_player_chunk_update_event(
                             index: t.sprite,
                         },
                     ),
+                    Transform::from_xyz(x, y, t.z_index as f32).with_scale(Vec3::splat(SPRITE_SCALE_FACTOR as f32)),
                     TileComponent,
                 ))
                 .id();
@@ -200,21 +200,23 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
             if noise_val < 0.05 {
                 continue;
             }
+            
+            const testSprite: usize = 298;
 
             // Dense Forest
             if (noise_val > 0.5 || noise_val3 > 0.98) && chance > 0.2 {
-                tiles.insert(Tile::new((x, y), 27, 5));
+                tiles.insert(Tile::new((x, y), testSprite, 5));
                 continue;
             }
             // Patch Forest
             if noise_val3 > 0.5 && noise_val < 0.5 && chance > 0.4 {
                 let chance2 = rng.gen_range(0.0..1.0);
                 let tile = if chance2 > 0.7 {
-                    rng.gen_range(24..=26)
+                    rng.gen_range(47..=49)
                 } else {
-                    rng.gen_range(24..=25)
+                    rng.gen_range(24..=26)
                 };
-                tiles.insert(Tile::new((x, y), tile, 3));
+                tiles.insert(Tile::new((x, y), testSprite, 3));
                 continue;
             }
             // Sparse Forest
@@ -225,14 +227,14 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
                 } else {
                     rng.gen_range(24..=25)
                 };
-                tiles.insert(Tile::new((x, y), tile, 3));
+                tiles.insert(Tile::new((x, y), testSprite, 3));
                 continue;
             }
 
             // Bones
             if noise_val > 0.3 && noise_val < 0.5 && noise_val3 < 0.5 && chance > 0.98 {
                 let tile = rng.gen_range(40..=43);
-                tiles.insert(Tile::new((x, y), tile, 1));
+                tiles.insert(Tile::new((x, y), testSprite, 1));
                 continue;
             }
 
@@ -247,10 +249,10 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
                     } else {
                         rng.gen_range(16..=17)
                     };
-                    tiles.insert(Tile::new((x, y), tile, 8));
+                    tiles.insert(Tile::new((x, y), testSprite, 8));
                 } else {
                     if noise_val > 0.2 && noise_val < 0.3 && noise_val3 < 0.3 && chance > 0.9 {
-                        tiles.insert(Tile::new((x, y), 32, 1));
+                        tiles.insert(Tile::new((x, y), testSprite, 1));
                     }
                 }
 
