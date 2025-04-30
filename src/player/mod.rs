@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use pistol::PistolPlugin;
 use resources::WorldMouseCoordinates;
 use systems::*;
+use crate::player::components::CurrentPlayerChunkPos;
 
 use crate::AppState;
 
@@ -18,8 +19,9 @@ impl Plugin for PlayerPlugin {
         app.add_plugins(PistolPlugin);
         // setup_board function is just for testing basic at the beginning.
         #[cfg(debug_assertions)]
-        app.add_systems(Startup, setup_board);
+        //app.add_systems(Startup, setup_board);
         app.init_state::<PlayerState>();
+        app.insert_resource(CurrentPlayerChunkPos::default());
         app.add_systems(
             Startup,
             (setup_player_sprites, spawn_player, spawn_player_camera).chain(),
@@ -35,6 +37,7 @@ impl Plugin for PlayerPlugin {
             )
                 .run_if(in_state(AppState::InGame)),
         );
+        app.add_systems(Update, update_player_chunk_pos);
         app.add_systems(
             Update,
             player_movement_animation_system.run_if(in_state(PlayerState::Moving)),

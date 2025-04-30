@@ -3,9 +3,9 @@ use bevy::prelude::*;
 use enemy::EnemyPlugin;
 use fuzzy_broccoli::{audio::AudioPlugin, AppState};
 use main_menu::MainMenuPlugin;
-use map_genreation::MapGenerationPlugin;
 use player::PlayerPlugin;
 use ui::UiPlugin;
+use crate::map_genreation::TerrainPlugin;
 
 mod main_menu;
 
@@ -40,14 +40,14 @@ fn main() {
 
     // Add debug plugins for rendering colliders etc
     #[cfg(debug_assertions)]
-    app.add_plugins((PhysicsDebugPlugin::default()));
+    app.add_plugins(PhysicsDebugPlugin::default());
 
     // Add custom plugins
     app.add_plugins((
         MainMenuPlugin,
         PlayerPlugin,
         EnemyPlugin,
-        MapGenerationPlugin,
+        TerrainPlugin,
         AudioPlugin,
         UiPlugin,
     ));
