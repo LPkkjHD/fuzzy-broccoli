@@ -3,7 +3,10 @@ use std::collections::HashMap;
 use avian2d::prelude::*;
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::collision::GameLayer;
+use crate::{
+    collision::GameLayer,
+    enemy::components::{Enemy, EnemyHealth},
+};
 
 use super::{
     components::*,
@@ -293,5 +296,25 @@ pub fn cursor_system(
     {
         mycoords.0 = world_position;
         // eprintln!("World coords: {}/{}", world_position.x, world_position.y);
+    }
+}
+
+pub fn player_enemy_collision_damage_system(
+    mut commands: Commands,
+    enemy_query: Query<Entity, With<Enemy>>,
+    mut player_query: Query<&mut PlayerHealth, With<Player>>,
+    mut collision_events: EventReader<Collision>,
+) {
+    for collision in collision_events.read() {
+        if enemy_query.get(collision.0.entity1).is_ok() {
+            if let Ok(mut player_health) = player_query.get_mut(collision.0.entity2) {
+                player_health.decrease_health(1)
+            }
+        }
+        if enemy_query.get(collision.0.entity2).is_ok() {
+            if let Ok(mut player_health) = player_query.get_mut(collision.0.entity1) {
+                player_health.decrease_health(1)
+            }
+        }
     }
 }

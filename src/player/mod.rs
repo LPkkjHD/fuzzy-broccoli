@@ -3,6 +3,8 @@ use pistol::PistolPlugin;
 use resources::WorldMouseCoordinates;
 use systems::*;
 
+use crate::AppState;
+
 pub mod components;
 mod resources;
 mod systems;
@@ -23,14 +25,15 @@ impl Plugin for PlayerPlugin {
             (setup_player_sprites, spawn_player, spawn_player_camera).chain(),
         );
         app.add_systems(Update, (player_movement_system, move_camera).chain());
-        app.add_systems(Update, zoom_control_system);
+        app.add_systems(Update, (zoom_control_system, cursor_system));
         app.add_systems(
             Update,
             (
                 player_animation_tick_system,
-                cursor_system,
                 fire_weapon_system,
-            ),
+                player_enemy_collision_damage_system,
+            )
+                .run_if(in_state(AppState::InGame)),
         );
         app.add_systems(
             Update,
