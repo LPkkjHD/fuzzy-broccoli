@@ -5,12 +5,15 @@ use crate::map_genreation::util::{center_to_top_left, grid_to_chunk, grid_to_wor
 use crate::player::components::{CurrentPlayerChunkPos, PlayerChunkUpdateEvent};
 use bevy::asset::{AssetServer, Assets};
 use bevy::math::{UVec2, Vec3};
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Sprite, TextureAtlas, TextureAtlasLayout, Transform, With};
+use bevy::prelude::{
+    Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Sprite, TextureAtlas,
+    TextureAtlasLayout, Transform, With,
+};
 use bevy::reflect::Array;
 use bevy::utils::{HashMap, HashSet};
+use log::log;
 use noise::{NoiseFn, Perlin};
 use rand::Rng;
-use log::log;
 
 pub fn handle_terrain_reset_event(
     mut commands: Commands,
@@ -91,14 +94,14 @@ pub fn handle_player_chunk_update_event(
         return;
     }
 
+    let mut rng = rand::thread_rng();
     let texture_handle = asset_server.load(SPRITE_SHEET_PATH);
     let texture_atlas_layout = TextureAtlasLayout::from_grid(
         UVec2::splat(16),
         28,
         13,
         Some(UVec2 { x: 1, y: 3 }),
-        None
-        //Some(UVec2 { x: 18, y: 19 }),
+        None, //Some(UVec2 { x: 18, y: 19 }),
     );
     let texture_atlas_handle = texture_atlas_layouts.add(texture_atlas_layout);
 
@@ -141,7 +144,7 @@ pub fn handle_player_chunk_update_event(
             // Ignore edges
             // This will help in better player visualization when going from land to water
             updated_ground_map.insert((*x, *y));
-            tiles.insert(Tile::new((*x, *y), 319, 0));
+            tiles.insert(Tile::new((*x, *y), tile, 0));
         }
         ground_tiles.0.extend(updated_ground_map);
 
@@ -159,7 +162,8 @@ pub fn handle_player_chunk_update_event(
                             index: t.sprite,
                         },
                     ),
-                    Transform::from_xyz(x, y, t.z_index as f32).with_scale(Vec3::splat(SPRITE_SCALE_FACTOR as f32)),
+                    Transform::from_xyz(x, y, t.z_index as f32)
+                        .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR as f32)),
                     TileComponent,
                 ))
                 .id();
@@ -200,70 +204,72 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
             if noise_val < 0.05 {
                 continue;
             }
-            
-            const testSprite: usize = 298;
 
             // Dense Forest
             if (noise_val > 0.5 || noise_val3 > 0.98) && chance > 0.2 {
-                tiles.insert(Tile::new((x, y), testSprite, 5));
+                tiles.insert(Tile::new((x, y), 298, 5));
                 continue;
             }
+
             // Patch Forest
             if noise_val3 > 0.5 && noise_val < 0.5 && chance > 0.4 {
                 let chance2 = rng.gen_range(0.0..1.0);
                 let tile = if chance2 > 0.7 {
-                    rng.gen_range(47..=49)
+                    let chance3 = rng.gen_range(0.0..1.0);
+                    if chance3 > 0.6 {
+                        rng.gen_range(320..=321)
+                    } else if chance3 > 0.1 {
+                        rng.gen_range(292..=294)
+                    } else {
+                        252
+                    }
                 } else {
-                    rng.gen_range(24..=26)
+                    298
                 };
-                tiles.insert(Tile::new((x, y), testSprite, 3));
+                tiles.insert(Tile::new((x, y), tile, 3));
                 continue;
             }
+
             // Sparse Forest
             if noise_val4 > 0.4 && noise_val < 0.5 && noise_val3 < 0.5 && chance > 0.9 {
                 let chance = rng.gen_range(0.0..1.0);
                 let tile = if chance > 0.78 {
-                    rng.gen_range(28..=29)
+                    298
                 } else {
-                    rng.gen_range(24..=25)
+                    rng.gen_range(320..=321)
                 };
-                tiles.insert(Tile::new((x, y), testSprite, 3));
+                tiles.insert(Tile::new((x, y), tile, 3));
                 continue;
             }
 
-            // Bones
+            // Cans
             if noise_val > 0.3 && noise_val < 0.5 && noise_val3 < 0.5 && chance > 0.98 {
-                let tile = rng.gen_range(40..=43);
-                tiles.insert(Tile::new((x, y), testSprite, 1));
+                let tile = rng.gen_range(280..=284);
+                tiles.insert(Tile::new((x, y), tile, 1));
                 continue;
             }
 
-            // Settlements
+            // Gas Station or dead body or junk
             if noise_val > 0.1 && noise_val < 0.3 && noise_val3 < 0.4 && chance > 0.8 {
                 let chance2 = rng.gen_range(0.0..1.0);
-
                 if chance2 > 0.98 {
-                    let chance3 = rng.gen_range(0.0..1.0);
-                    let tile = if chance3 > 0.75 {
-                        rng.gen_range(18..=19)
-                    } else {
-                        rng.gen_range(16..=17)
-                    };
-                    tiles.insert(Tile::new((x, y), testSprite, 8));
+                    for x_stamp in 0..6 {
+                        for y_stamp in 0..3 {
+                            tiles.insert(Tile::new(
+                                (x + x_stamp, y + y_stamp),
+                                (28 * (2 + y_stamp) + 13 + x_stamp) as usize,
+                                5,
+                            ));
+                        }
+                    }
                 } else {
                     if noise_val > 0.2 && noise_val < 0.3 && noise_val3 < 0.3 && chance > 0.9 {
-                        tiles.insert(Tile::new((x, y), testSprite, 1));
+                        let tile = rng.gen_range(41..=44);
+                        tiles.insert(Tile::new((x, y), tile, 5));
                     }
                 }
-
                 continue;
             }
-
-            // Color Check
-            // if noise_val > 0.1 && noise_val4 < 0.5 {
-            //     tiles.insert(Tile::new((x, y), 64, 1));
-            //     continue;
-            // }
         }
     }
 
@@ -299,6 +305,7 @@ pub fn process_tile((x, y): (i32, i32), occupied: &HashSet<(i32, i32)>) -> (i32,
     //     }
     // }
 
+    // TODO: Hier müssen noch die richtigen Tile IDs eingesetzt werden, damit der Übergang zum Wasser passt 
     let tile = match nei {
         [0, 1, 1, 0] => 3,
         [1, 0, 1, 0] => 4,
