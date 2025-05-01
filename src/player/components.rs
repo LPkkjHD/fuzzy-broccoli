@@ -22,9 +22,6 @@ pub struct PlayerAnimationTimer(pub Timer);
 #[derive(Component)]
 pub struct PlayerAnimationFrame(pub u8);
 
-#[derive(Resource)]
-struct DefaultAtlasHandle(pub Option<Handle<TextureAtlasLayout>>);
-
 #[derive(Resource, Default)]
 pub struct CurrentPlayerChunkPos(pub (i32, i32));
 

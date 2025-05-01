@@ -11,7 +11,7 @@ use crate::{
 };
 
 use super::{
-    components::{AttacksPerSecond, Damage, Pistol, Projectile},
+    components::{Damage, Pistol, Projectile},
     events::WeaponFiredEvent,
 };
 
@@ -23,7 +23,6 @@ pub fn spawn_pistol(
     let pistol_component = (
         Pistol,
         Damage(20.0),
-        AttacksPerSecond(3.0),
         Transform{ translation: Vec3::new(-6.0, -4.0, 1.0), ..default() },
         Sprite {
             image: asset_server.load("zombie_apocalypse_tileset/organized_separated_sprites/Pickable Items and Weapons/Zombie-Tileset---_0333_Capa-334.png"),
@@ -71,21 +70,6 @@ pub fn spawn_projectile_component(
             commands.spawn(projectile_component);
             // event.0
         }
-    }
-}
-
-pub fn despawn_projectile_component(
-    mut commands: Commands,
-    mut projectile_query: Query<Entity, With<Projectile>>,
-) {
-    projectile_query
-        .iter_mut()
-        .for_each(|projectile| commands.entity(projectile).despawn());
-}
-
-pub fn despawn_pistol(mut commands: Commands, pistol_query: Query<Entity, With<Pistol>>) {
-    if let Ok(entity) = pistol_query.get_single() {
-        commands.entity(entity).despawn();
     }
 }
 

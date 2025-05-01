@@ -1,5 +1,4 @@
 use crate::AppState;
-use crate::AlignSelf::Auto;
 use crate::{
     enemy::resources::EnemyKillCount,
     player::components::{Player, PlayerHealth},

@@ -11,6 +11,7 @@ use bevy::utils::HashSet;
 use noise::{NoiseFn, Perlin};
 use rand::Rng;
 
+#[allow(clippy::too_many_arguments)]
 pub fn handle_terrain_reset_event(
     mut commands: Commands,
     mut reader: EventReader<ResetTerrainEvent>,

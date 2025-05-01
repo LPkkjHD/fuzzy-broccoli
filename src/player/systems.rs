@@ -173,36 +173,6 @@ pub fn move_camera(
 
     camera.translation = camera.translation.lerp(direction, time.delta_secs() * 4.0);
 }
-// System to set up the checkerboard background
-pub fn setup_board(mut commands: Commands) {
-    let square_size = 16.0; // Size of each square in pixels
-    let board_size_squares_x = 100; // Number of squares in x-direction
-    let board_size_squares_y = 100; // Number of squares in y-direction
-
-    let color_light = Color::srgb(0.7, 0.7, 0.7); // Light gray
-    let color_dark = Color::srgb(0.3, 0.3, 0.3); // Dark gray
-
-    for row in 0..board_size_squares_y {
-        for col in 0..board_size_squares_x {
-            let color = if (row + col) % 2 == 0 {
-                color_light
-            } else {
-                color_dark
-            }; // Alternate colors
-            let x_pos = (col as f32 - (board_size_squares_x as f32 / 2.0 - 0.5)) * square_size;
-            let y_pos = (row as f32 - (board_size_squares_y as f32 / 2.0 - 0.5)) * square_size;
-
-            commands.spawn((
-                Sprite {
-                    color,
-                    rect: Some(Rect::new(0.0, 0.0, square_size, square_size)), // Define square size
-                    ..Default::default()
-                },
-                Transform::from_translation(Vec3::new(x_pos, y_pos, -1.0)), // z-index -1 to put board behind player
-            ));
-        }
-    }
-}
 
 pub fn zoom_control_system(
     input: Res<ButtonInput<KeyCode>>,
@@ -327,9 +297,7 @@ pub fn fire_weapon_system(
     mut event_writer: EventWriter<WeaponFiredEvent>,
     cursor_position: Res<WorldMouseCoordinates>,
 ) {
-    if mouse_input.just_pressed(MouseButton::Left) {
-        event_writer.send(WeaponFiredEvent(cursor_position.0));
-    } else if key_input.just_pressed(KeyCode::Enter) {
+    if mouse_input.just_pressed(MouseButton::Left) || key_input.just_pressed(KeyCode::Enter)  {
         event_writer.send(WeaponFiredEvent(cursor_position.0));
     }
 }
