@@ -31,14 +31,12 @@ pub fn handle_terrain_reset_event(
         commands.entity(t).despawn();
     }
 
-    // Reset res
     chunks.0.clear();
     ground_tiles.0.clear();
 
     let mut rng = rand::thread_rng();
     seed.0 = rng.gen();
 
-    // Trigger world re-generation
     let (x, y) = player_pos.0;
     ev_writer.send(PlayerChunkUpdateEvent((x, y)));
 }
@@ -233,13 +231,11 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
                 continue;
             }
 
-            // Dense Forest
             if (noise_val > 0.5 || noise_val3 > 0.98) && chance > 0.2 {
                 tiles.insert(Tile::new((x, y), 298, 5));
                 continue;
             }
 
-            // Patch Forest
             if noise_val3 > 0.5 && noise_val < 0.5 && chance > 0.4 {
                 let chance2 = rng.gen_range(0.0..1.0);
                 let tile = if chance2 > 0.7 {
@@ -258,7 +254,6 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
                 continue;
             }
 
-            // Sparse Forest
             if noise_val4 > 0.4 && noise_val < 0.5 && noise_val3 < 0.5 && chance > 0.9 {
                 let chance = rng.gen_range(0.0..1.0);
                 let tile = if chance > 0.78 { 298 } else { rng.gen_range(320..=321) };
@@ -266,14 +261,12 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
                 continue;
             }
 
-            // Cans
             if noise_val > 0.3 && noise_val < 0.5 && noise_val3 < 0.5 && chance > 0.98 {
                 let tile = rng.gen_range(280..=284);
                 tiles.insert(Tile::new((x, y), tile, 1));
                 continue;
             }
 
-            // Gas Station or dead body or junk
             if noise_val > 0.1 && noise_val < 0.3 && noise_val3 < 0.4 && chance > 0.8 {
                 let chance2 = rng.gen_range(0.0..1.0);
                 if chance2 > 0.98 {
