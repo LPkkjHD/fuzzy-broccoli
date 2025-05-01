@@ -327,20 +327,31 @@ pub fn cursor_system(
 
 pub fn player_enemy_collision_damage_system(
     mut commands: Commands,
+    time: Res<Time>,
     enemy_query: Query<Entity, With<Enemy>>,
-    mut player_query: Query<&mut PlayerHealth, With<Player>>,
+    mut player_query: Query<(Entity, &mut PlayerHealth, Option<&mut DamageInvulnerability>), With<Player>>,
     mut collision_events: EventReader<Collision>,
 ) {
-    for collision in collision_events.read() {
-        if enemy_query.get(collision.0.entity1).is_ok() {
-            if let Ok(mut player_health) = player_query.get_mut(collision.0.entity2) {
-                player_health.decrease_health(1)
-            }
+    let Ok((player_entity, mut player_health, invulnerability)) = player_query.get_single_mut() else { return };
+
+    // Check and update invulnerability
+    if let Some(mut invulnerability) = invulnerability {
+        invulnerability.timer.tick(time.delta());
+        if !invulnerability.timer.finished() {
+            return; // Skip damage if still invulnerable
         }
-        if enemy_query.get(collision.0.entity2).is_ok() {
-            if let Ok(mut player_health) = player_query.get_mut(collision.0.entity1) {
-                player_health.decrease_health(1)
-            }
+        commands.entity(player_entity).remove::<DamageInvulnerability>();
+    }
+
+    // Check collisions and apply damage
+    for collision in collision_events.read() {
+        let is_enemy_collision = enemy_query.get(collision.0.entity1).is_ok() ||
+            enemy_query.get(collision.0.entity2).is_ok();
+
+        if is_enemy_collision {
+            player_health.decrease_health(1);
+            commands.entity(player_entity).insert(DamageInvulnerability::default());
+            break; // Only take damage once per frame
         }
     }
 }

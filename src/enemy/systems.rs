@@ -221,30 +221,41 @@ pub fn wave_timer_system(mut wave_timer: ResMut<WaveTimer>, time: Res<Time>) {
     }
 }
 
-pub fn prevent_enemy_overlap_system(mut query: Query<(&mut Transform, Entity), With<Enemy>>) {
-    let enemy_positions: Vec<(Entity, Vec3)> = query
+pub fn prevent_enemy_overlap_system(
+    mut query: Query<(&mut Transform, &LinearVelocity, Entity), With<Enemy>>,
+) {
+    let enemies: Vec<(Entity, Vec3, Vec2)> = query
         .iter()
-        .map(|(transform, entity)| (entity, transform.translation))
+        .map(|(transform, velocity, entity)| (entity, transform.translation, velocity.0))
         .collect();
 
-    for i in 0..enemy_positions.len() {
-        for j in (i + 1)..enemy_positions.len() {
-            let (entity_a, pos_a) = enemy_positions[i];
-            let (entity_b, pos_b) = enemy_positions[j];
+    for i in 0..enemies.len() {
+        for j in (i + 1)..enemies.len() {
+            let (entity_a, pos_a, vel_a) = enemies[i];
+            let (entity_b, pos_b, vel_b) = enemies[j];
 
             let distance = pos_a.distance(pos_b);
-            let min_distance = 32.0;
+            let min_distance = 24.0; // Reduced from 32.0 to allow closer proximity
 
             if distance < min_distance {
-                let overlap = min_distance - distance;
                 let direction = (pos_b - pos_a).normalize_or_zero();
+                let overlap = min_distance - distance;
 
-                // Entity verschieben bei Overlap
-                if let Ok((mut transform_a, _)) = query.get_mut(entity_a) {
-                    transform_a.translation -= direction * (overlap / 2.0);
-                }
-                if let Ok((mut transform_b, _)) = query.get_mut(entity_b) {
-                    transform_b.translation += direction * (overlap / 2.0);
+                // Only apply separation if enemies are moving towards each other
+                let relative_velocity = vel_b - vel_a;
+                let approaching = relative_velocity.dot(direction.truncate()) < 0.0;
+
+                if approaching {
+                    // Calculate separation force based on overlap
+                    let separation = direction * (overlap * 0.5);
+
+                    // Apply separation with damping
+                    if let Ok((mut transform_a, _, _)) = query.get_mut(entity_a) {
+                        transform_a.translation -= separation * 0.7;
+                    }
+                    if let Ok((mut transform_b, _, _)) = query.get_mut(entity_b) {
+                        transform_b.translation += separation * 0.7;
+                    }
                 }
             }
         }

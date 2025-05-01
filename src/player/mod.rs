@@ -50,6 +50,7 @@ impl Plugin for PlayerPlugin {
         app.add_systems(Update, player_debug_system);
 
         app.init_resource::<WorldMouseCoordinates>();
+
     }
 }
 

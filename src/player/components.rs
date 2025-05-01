@@ -92,6 +92,19 @@ impl PlayerHealth {
     }
 }
 
+#[derive(Component)]
+pub struct DamageInvulnerability {
+    pub timer: Timer,
+}
+
+impl Default for DamageInvulnerability {
+    fn default() -> Self {
+        Self {
+            timer: Timer::from_seconds(1.0, TimerMode::Once)
+        }
+    }
+}
+
 // --- UNIT TESTS ---
 #[cfg(test)]
 mod tests {
