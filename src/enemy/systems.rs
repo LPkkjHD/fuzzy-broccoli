@@ -121,7 +121,7 @@ pub fn enemy_movement_and_direction_system(
     let Ok(player_transform) = player_query.get_single() else {
         return;
     };
-    let player_pos_2d = player_transform.translation.truncate(); // Use Vec2 for calculations
+    let player_pos_2d = player_transform.translation.truncate();
 
     for (enemy_transform, mut velocity, mut facing, mut sprite, enemy_type, anim_frame) in
         enemy_query.iter_mut()
@@ -141,14 +141,14 @@ pub fn enemy_movement_and_direction_system(
         velocity.y = target_velocity.y;
 
         let new_direction = if direction.x.abs() > direction.y.abs() {
-            // Horizontal movement is dominant
+            // Horizontal movement is stroner
             if direction.x > 0.0 {
                 FacingDirection::Right
             } else {
                 FacingDirection::Left
             }
         } else {
-            // Vertical movement is dominant (or exactly diagonal)
+            //vertical movement is stronger (or exactly diagonal)
             if direction.y > 0.0 {
                 FacingDirection::Up
             } else {

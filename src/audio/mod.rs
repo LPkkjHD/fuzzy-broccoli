@@ -38,7 +38,6 @@ fn get_audio_track_handle(
     }
 }
 
-// Function to get the next AudioTrack in the cycle
 fn get_next_audio_track(current_track: &AudioTrack) -> AudioTrack {
     match current_track {
         AudioTrack::MainMenuLoop => AudioTrack::GameplayLoop2,
@@ -56,7 +55,7 @@ fn get_next_audio_track(current_track: &AudioTrack) -> AudioTrack {
 pub fn setup_audio_assets(_commands: Commands) {}
 
 pub fn initial_audio_playback(mut event_writer: EventWriter<TrackSwitchEvent>) {
-    let initial_track = AudioTrack::MainMenuLoop; // Hardcode initial track to MainMenuLoop
+    let initial_track = AudioTrack::MainMenuLoop;
     event_writer.send(TrackSwitchEvent {
         track: initial_track,
     });

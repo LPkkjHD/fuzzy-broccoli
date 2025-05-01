@@ -4,7 +4,6 @@ use fuzzy_broccoli::ui::UiPlugin;
 
 pub fn main() {
     let mut app = App::new();
-    // default system setup
     app.add_plugins((DefaultPlugins, UiPlugin));
 
     app.add_systems(Startup, startup);

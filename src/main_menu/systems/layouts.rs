@@ -34,7 +34,6 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
             MainMenu {},
         ))
         .with_children(|parent| {
-            // == Title ==
             parent
                 .spawn((
                     Node {
@@ -48,7 +47,6 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
                     BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
                 ))
                 .with_children(|parent| {
-                    // center text
                     parent
                         .spawn(Node {
                             width: Val::Auto,
@@ -76,7 +74,6 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
                         });
                 });
 
-            // == Play Button ==
             parent
                 .spawn((
                     Node {
@@ -100,7 +97,6 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
                     ));
                 });
 
-            // == Quit Button ==
             parent
                 .spawn((
                     Node {

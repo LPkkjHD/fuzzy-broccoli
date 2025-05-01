@@ -36,7 +36,6 @@ pub struct EnemyAnimationFrames {
     pub boss: HashMap<FacingDirection, Vec<Handle<Image>>>,
 }
 
-/// Defines facing directions.
 #[derive(Component, PartialEq, Eq, Debug, Clone, Copy, Hash)]
 pub enum FacingDirection {
     Up,
@@ -44,19 +43,3 @@ pub enum FacingDirection {
     Left,
     Right,
 }
-
-// /// Holds directional sprite handles for one enemy variant.
-// pub struct DirectionalSprites {
-//     pub up: Handle<Image>,
-//     pub down: Handle<Image>,
-//     pub left: Handle<Image>,
-//     pub right: Handle<Image>,
-// }
-//
-// /// Resource to store all enemy variant sprites.
-// #[derive(Resource)]
-// pub struct EnemySprites {
-//     pub zombie: DirectionalSprites,
-//     pub skeleton: DirectionalSprites,
-//     pub boss: DirectionalSprites,
-// }

@@ -221,7 +221,7 @@ pub fn update_score_widget_system(
     info!(
         "Score update system triggered for {} kills",
         score_resource.0
-    ); // Add this log!
+    );
     for mut text in &mut score_text_query {
         **text = format!("Kills: {}", score_resource.0);
     }

@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 pub fn main() {
     let mut app = App::new();
-    // default system setup
     app.add_plugins(DefaultPlugins);
 
     app.add_systems(Startup, startup);

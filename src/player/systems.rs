@@ -65,7 +65,6 @@ pub fn player_ground_collision_system(
     if let Ok((mut transform, facing_direction)) = player_query.get_single_mut() {
         let current_pos = transform.translation;
 
-        // Convert current position to grid coordinates
         let (grid_x, grid_y) = world_to_grid(current_pos.x, current_pos.y);
         let (grid_x, grid_y) = center_to_top_left_grid(grid_x, grid_y);
         let grid_coords = (grid_x.round() as i32, grid_y.round() as i32);

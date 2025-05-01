@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-// use components::*;
 use resources::*;
 use systems::*;
 
