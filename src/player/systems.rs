@@ -372,8 +372,12 @@ pub fn player_enemy_collision_damage_system(
 
     // Check collisions and apply damage
     for collision in collision_events.read() {
-        let is_enemy_collision = enemy_query.get(collision.0.entity1).is_ok() ||
-            enemy_query.get(collision.0.entity2).is_ok();
+        let entity1 = collision.0.entity1;
+        let entity2 = collision.0.entity2;
+
+        // Check if one entity is player and the other is enemy
+        let is_enemy_collision = (entity1 == player_entity && enemy_query.get(entity2).is_ok()) ||
+            (entity2 == player_entity && enemy_query.get(entity1).is_ok());
 
         if is_enemy_collision {
             player_health.decrease_health(1);
