@@ -6,7 +6,7 @@ use crate::map_genreation::util::{center_to_top_left_grid, grid_to_chunk, world_
 
 use crate::{
     collision::GameLayer,
-    enemy::components::{Enemy, EnemyHealth},
+    enemy::components::Enemy,
 };
 
 use super::{
@@ -26,7 +26,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         Transform::from_xyz(0.0, 0.0, 9.0),
             // .with_scale(Vec3::new(2.0,2.0,1.0)),
-        PlayerMovementSpeed(100.0),
+        PlayerMovementSpeed(500.0),
         // Add PlayerHealth Component with default values of 3/3 lifes/max_lifes
         PlayerHealth::new(3),
         RigidBody::Kinematic,

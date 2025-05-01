@@ -5,7 +5,7 @@ use avian2d::prelude::{
 use bevy::prelude::*;
 
 use crate::{
-    collision::{self, GameLayer},
+    collision::GameLayer,
     enemy::components::{Enemy, EnemyHealth},
     player::components::Player,
 };

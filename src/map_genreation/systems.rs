@@ -5,7 +5,7 @@ use crate::map_genreation::util::{center_to_top_left, grid_to_chunk, grid_to_wor
 use crate::player::components::{CurrentPlayerChunkPos, PlayerChunkUpdateEvent};
 use bevy::asset::{AssetServer, Assets};
 use bevy::math::{UVec2, Vec3};
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Quat, Query, Res, ResMut, Sprite, TextureAtlas, TextureAtlasLayout, Transform, With};
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Sprite, TextureAtlas, TextureAtlasLayout, Transform, With};
 use bevy::reflect::Array;
 use bevy::utils::HashSet;
 use noise::{NoiseFn, Perlin};
@@ -148,8 +148,6 @@ pub fn handle_player_chunk_update_event(
             let (x, y) = grid_to_world(t.pos.0 as f32, t.pos.1 as f32);
             let (x, y) = center_to_top_left(x, y);
 
-            // Convert rotation from degrees to radians
-            let rotation = (t.rotation as f32).to_radians();
 
             let e = commands
                 .spawn((
@@ -161,8 +159,7 @@ pub fn handle_player_chunk_update_event(
                         },
                     ),
                     Transform::from_xyz(x, y, t.z_index as f32)
-                        .with_rotation(Quat::from_rotation_z(rotation))
-                        .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR as f32)),
+                        .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR * 1.01f32)),
                     TileComponent,
                 ))
                 .id();
@@ -211,30 +208,20 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
                     ground_map.contains(&(x - 1, y)), // West
                 ];
 
-                let (water_tile, rotation) = match shore_pattern {
-                    // North shore (original, no rotation)
-                    [true, false, false, false] => (338, 0),
-                    // East shore (rotate 90° clockwise)
-                    [false, true, false, false] => (338, 270),
-                    // South shore (rotate 180°)
-                    [false, false, true, false] => (338, 180),
-                    // West shore (rotate 90° counterclockwise)
-                    [false, false, false, true] => (338, 90),
-                    // Corners could use the same tile with different rotations
-                    // Or use regular water tiles for corners
-                    [true, true, false, false] => (339, 0),
-                    [false, true, true, false] => (339, 270),
-                    [false, false, true, true] => (339, 180),
-                    [true, false, false, true] => (339, 90),
-                    // Open water (random variants)
+                let water_tile = match shore_pattern {
+                    // Detect if the Water tile is a top shore
+                    [true, false, false, false] => 338,
+                    [true, false, false, true] => 338,
+                    [true, true, false, false] => 338,
+                    [true, true, false, true] => 338,
                     _ => match rng.gen_range(0..3) {
-                        0 => (286, 0),
-                        1 => (314, 0),
-                        _ => (342, 0),
+                        0 => 286,
+                        1 => 314,
+                        _ => 342,
                     },
                 };
 
-                tiles.insert(Tile::with_rotation((x, y), water_tile, -1, rotation));
+                tiles.insert(Tile::new((x, y), water_tile, 1));
                 continue;
             }
 
@@ -348,14 +335,6 @@ pub fn process_tile((x, y): (i32, i32), occupied: &HashSet<(i32, i32)>) -> (i32,
         1 => 319,
         _ => 347,
     };
-    // TODO: Hier müssen noch die richtigen Tile IDs eingesetzt werden, damit der Übergang zum Wasser passt
-    // let tile = match nei {
-    //     [0, 1, 1, 0] => 339,
-    //     [1, 0, 1, 0] => 339,
-    //     [0, 1, 0, 1] => 339,
-    //     [1, 0, 0, 1] => 339,
-    //     _ => ground_tile_index,
-    // };
 
     (nei_count, tile)
 }

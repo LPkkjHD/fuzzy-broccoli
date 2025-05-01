@@ -28,7 +28,7 @@ pub fn spawn_enemy_system(
     if spawn_timer.0.just_finished() {
         let player_transform = player_query.single();
         let spawn_distance = 500.0;
-        let mut rng = rand::thread_rng();
+        let mut rng = thread_rng();
         let angle = rng.gen_range(0.0..2.0 * PI);
         let spawn_position = Vec3::new(
             player_transform.translation.x + spawn_distance * angle.cos(),

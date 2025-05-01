@@ -2,15 +2,15 @@ use crate::map_genreation::config::*;
 
 pub fn grid_to_world(x: f32, y: f32) -> (f32, f32) {
     (
-        x * TILE_W as f32 * SPRITE_SCALE_FACTOR as f32,
-        y * TILE_H as f32 * SPRITE_SCALE_FACTOR as f32,
+        x * TILE_W as f32 * SPRITE_SCALE_FACTOR,
+        y * TILE_H as f32 * SPRITE_SCALE_FACTOR,
     )
 }
 
 pub fn world_to_grid(x: f32, y: f32) -> (f32, f32) {
     (
-        (x / (TILE_W as f32 * SPRITE_SCALE_FACTOR as f32)).floor(),
-        (y / (TILE_H as f32 * SPRITE_SCALE_FACTOR as f32)).floor(),
+        (x / (TILE_W as f32 * SPRITE_SCALE_FACTOR)).floor(),
+        (y / (TILE_H as f32 * SPRITE_SCALE_FACTOR)).floor(),
     )
 }
 
@@ -21,8 +21,8 @@ pub fn center_to_top_left_grid(x: f32, y: f32) -> (f32, f32) {
 }
 
 pub fn center_to_top_left(x: f32, y: f32) -> (f32, f32) {
-    let x_center = x - (GRID_W as f32 * SPRITE_SCALE_FACTOR as f32) / 2.0;
-    let y_center = (GRID_H as f32 * SPRITE_SCALE_FACTOR as f32) / 2.0 - y;
+    let x_center = x - (GRID_W as f32 * SPRITE_SCALE_FACTOR) / 2.0;
+    let y_center = (GRID_H as f32 * SPRITE_SCALE_FACTOR) / 2.0 - y;
     (x_center, y_center)
 }
 
