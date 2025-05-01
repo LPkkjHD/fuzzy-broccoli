@@ -7,9 +7,10 @@ pub struct ResetTerrainEvent;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub struct Tile {
-    pub(crate) pos: (i32, i32),
-    pub(crate) sprite: usize,
-    pub(crate) z_index: i32,
+    pub pos: (i32, i32),
+    pub sprite: usize,
+    pub z_index: i32,
+    pub(crate) rotation: i32,
 }
 
 impl Tile {
@@ -18,6 +19,16 @@ impl Tile {
             pos,
             sprite,
             z_index,
+            rotation: 0,
+        }
+    }
+
+    pub fn with_rotation(pos: (i32, i32), sprite: usize, z_index: i32, rotation: i32) -> Self {
+        Self {
+            pos,
+            sprite,
+            z_index,
+            rotation,
         }
     }
 }

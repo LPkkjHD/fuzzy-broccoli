@@ -5,10 +5,7 @@ use crate::map_genreation::util::{center_to_top_left, grid_to_chunk, grid_to_wor
 use crate::player::components::{CurrentPlayerChunkPos, PlayerChunkUpdateEvent};
 use bevy::asset::{AssetServer, Assets};
 use bevy::math::{UVec2, Vec3};
-use bevy::prelude::{
-    Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Sprite, TextureAtlas,
-    TextureAtlasLayout, Transform, With,
-};
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Quat, Query, Res, ResMut, Sprite, TextureAtlas, TextureAtlasLayout, Transform, With};
 use bevy::reflect::Array;
 use bevy::utils::HashSet;
 use noise::{NoiseFn, Perlin};
@@ -151,6 +148,9 @@ pub fn handle_player_chunk_update_event(
             let (x, y) = grid_to_world(t.pos.0 as f32, t.pos.1 as f32);
             let (x, y) = center_to_top_left(x, y);
 
+            // Convert rotation from degrees to radians
+            let rotation = (t.rotation as f32).to_radians();
+
             let e = commands
                 .spawn((
                     Sprite::from_atlas_image(
@@ -161,6 +161,7 @@ pub fn handle_player_chunk_update_event(
                         },
                     ),
                     Transform::from_xyz(x, y, t.z_index as f32)
+                        .with_rotation(Quat::from_rotation_z(rotation))
                         .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR as f32)),
                     TileComponent,
                 ))
@@ -182,6 +183,8 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
     let mut tiles = HashSet::new();
     let mut ground_map = HashSet::new();
     let end = (start.0 + CHUNK_W as i32, start.1 + CHUNK_H as i32);
+
+    // First pass: Generate ground map
     for x in start.0 - 1..end.0 + 1 {
         for y in start.1 - 1..end.1 + 1 {
             let noise_val1 = noise.get([x as f64 / 100.5, y as f64 / 100.5]);
@@ -189,16 +192,59 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
             let noise_val3 = noise.get([x as f64 / 43.5, y as f64 / 43.5]);
             let noise_val4 = noise.get([x as f64 / 23.5, y as f64 / 23.5]);
             let noise_val = (noise_val1 + noise_val2 + noise_val3 + noise_val4) / 4.0;
-            let chance = rng.gen_range(0.0..1.0);
 
-            // Ground
             if noise_val > 0.0 {
                 ground_map.insert((x, y));
-            } else {
+            }
+        }
+    }
+
+    // Second pass: Generate features and water
+    for x in start.0 - 1..end.0 + 1 {
+        for y in start.1 - 1..end.1 + 1 {
+            if !ground_map.contains(&(x, y)) {
+                // Check neighbors to determine shore tiles
+                let shore_pattern = [
+                    ground_map.contains(&(x, y - 1)), // North
+                    ground_map.contains(&(x + 1, y)), // East
+                    ground_map.contains(&(x, y + 1)), // South
+                    ground_map.contains(&(x - 1, y)), // West
+                ];
+
+                let (water_tile, rotation) = match shore_pattern {
+                    // North shore (original, no rotation)
+                    [true, false, false, false] => (338, 0),
+                    // East shore (rotate 90° clockwise)
+                    [false, true, false, false] => (338, 270),
+                    // South shore (rotate 180°)
+                    [false, false, true, false] => (338, 180),
+                    // West shore (rotate 90° counterclockwise)
+                    [false, false, false, true] => (338, 90),
+                    // Corners could use the same tile with different rotations
+                    // Or use regular water tiles for corners
+                    [true, true, false, false] => (339, 0),
+                    [false, true, true, false] => (339, 270),
+                    [false, false, true, true] => (339, 180),
+                    [true, false, false, true] => (339, 90),
+                    // Open water (random variants)
+                    _ => match rng.gen_range(0..3) {
+                        0 => (286, 0),
+                        1 => (314, 0),
+                        _ => (342, 0),
+                    },
+                };
+
+                tiles.insert(Tile::with_rotation((x, y), water_tile, -1, rotation));
                 continue;
             }
 
-            // Too close to shore
+            let noise_val1 = noise.get([x as f64 / 100.5, y as f64 / 100.5]);
+            let noise_val2 = noise.get([x as f64 / 53.5, y as f64 / 53.5]);
+            let noise_val3 = noise.get([x as f64 / 43.5, y as f64 / 43.5]);
+            let noise_val4 = noise.get([x as f64 / 23.5, y as f64 / 23.5]);
+            let noise_val = (noise_val1 + noise_val2 + noise_val3 + noise_val4) / 4.0;
+            let chance = rng.gen_range(0.0..1.0);
+
             if noise_val < 0.05 {
                 continue;
             }
@@ -231,11 +277,7 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
             // Sparse Forest
             if noise_val4 > 0.4 && noise_val < 0.5 && noise_val3 < 0.5 && chance > 0.9 {
                 let chance = rng.gen_range(0.0..1.0);
-                let tile = if chance > 0.78 {
-                    298
-                } else {
-                    rng.gen_range(320..=321)
-                };
+                let tile = if chance > 0.78 { 298 } else { rng.gen_range(320..=321) };
                 tiles.insert(Tile::new((x, y), tile, 3));
                 continue;
             }
@@ -260,24 +302,21 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
                             ));
                         }
                     }
-                } else {
-                    if noise_val > 0.2 && noise_val < 0.3 && noise_val3 < 0.3 && chance > 0.9 {
-                        let tile = rng.gen_range(41..=44);
-                        tiles.insert(Tile::new((x, y), tile, 5));
-                    }
+                } else if noise_val > 0.2 && noise_val < 0.3 && noise_val3 < 0.3 && chance > 0.9 {
+                    let tile = rng.gen_range(41..=44);
+                    tiles.insert(Tile::new((x, y), tile, 5));
                 }
-                continue;
             }
         }
     }
 
     (tiles, ground_map)
 }
-
 pub fn process_tile((x, y): (i32, i32), occupied: &HashSet<(i32, i32)>) -> (i32, usize) {
     let nei_options = [(-1, 0), (1, 0), (0, -1), (0, 1)];
     let mut nei = [1, 1, 1, 1];
     let mut nei_count = 4;
+    let mut rng = rand::thread_rng();
     for idx in 0..nei_options.len() {
         let (i, j) = nei_options[idx];
         if !occupied.contains(&(x + i, y + j)) {
@@ -303,14 +342,20 @@ pub fn process_tile((x, y): (i32, i32), occupied: &HashSet<(i32, i32)>) -> (i32,
     //     }
     // }
 
-    // TODO: Hier müssen noch die richtigen Tile IDs eingesetzt werden, damit der Übergang zum Wasser passt 
-    let tile = match nei {
-        [0, 1, 1, 0] => 3,
-        [1, 0, 1, 0] => 4,
-        [0, 1, 0, 1] => 1,
-        [1, 0, 0, 1] => 2,
-        _ => 0,
+    //select random ground tile
+    let tile = match rng.gen_range(0..3) {
+        0 => 291,
+        1 => 319,
+        _ => 347,
     };
+    // TODO: Hier müssen noch die richtigen Tile IDs eingesetzt werden, damit der Übergang zum Wasser passt
+    // let tile = match nei {
+    //     [0, 1, 1, 0] => 339,
+    //     [1, 0, 1, 0] => 339,
+    //     [0, 1, 0, 1] => 339,
+    //     [1, 0, 0, 1] => 339,
+    //     _ => ground_tile_index,
+    // };
 
     (nei_count, tile)
 }
