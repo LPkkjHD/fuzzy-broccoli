@@ -1,3 +1,4 @@
+use crate::AppState;
 use crate::AlignSelf::Auto;
 use crate::{
     enemy::resources::EnemyKillCount,
@@ -184,8 +185,14 @@ pub fn update_health_bar_system(
 pub fn update_health_system(
     mut heart_fg_query: Query<(&HeartForeground, &mut Visibility)>,
     player_query: Query<&PlayerHealth, (With<Player>, With<PlayerHealth>)>,
+    mut next_state: ResMut<NextState<AppState>>,
 ) {
     if let Ok(player_health) = player_query.get_single() {
+        if player_health.current_health() == 0 {
+            next_state.set(AppState::GameOver);
+            return;
+        }
+
         for (heart_fg, mut visibility) in heart_fg_query.iter_mut() {
             *visibility = if heart_fg.index < player_health.current_health() {
                 Visibility::Inherited
@@ -270,11 +277,14 @@ pub fn update_timer_system(
     time: Res<Time>,
     mut game_timer: ResMut<GameTimer>,
     mut timer_query: Query<&mut Text, With<TimerTextMarker>>,
+    mut next_state: ResMut<NextState<AppState>>,
 ) {
     game_timer.remaining_seconds -= time.delta_secs();
 
     if game_timer.remaining_seconds <= 0.0 {
         game_timer.remaining_seconds = 0.0;
+        next_state.set(AppState::GameWon);
+        return;
     }
 
     let minutes = (game_timer.remaining_seconds / 60.0).floor();

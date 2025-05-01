@@ -16,4 +16,5 @@ pub enum AppState {
     MainMenu,
     InGame,
     GameOver,
+    GameWon,
 }
