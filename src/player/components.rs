@@ -100,7 +100,7 @@ pub struct DamageInvulnerability {
 impl Default for DamageInvulnerability {
     fn default() -> Self {
         Self {
-            timer: Timer::from_seconds(1.0, TimerMode::Once)
+            timer: Timer::from_seconds(1.0, TimerMode::Repeating)
         }
     }
 }
