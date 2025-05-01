@@ -15,7 +15,7 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(SpawnTimer(Timer::from_seconds(2.0, TimerMode::Repeating)))
             .insert_resource(WaveTimer {
-                timer: Timer::from_seconds(30.0, TimerMode::Repeating),
+                timer: Timer::from_seconds(60.0, TimerMode::Repeating),
                 wave: 0,
             })
             .insert_resource(EnemyKillCount(0))
@@ -28,6 +28,7 @@ impl Plugin for EnemyPlugin {
                     animate_enemy_system,
                     prevent_enemy_overlap_system,
                     kill_enemy_system,
+                    wave_timer_system,
                 )
                     .run_if(in_state(AppState::InGame)),
             );

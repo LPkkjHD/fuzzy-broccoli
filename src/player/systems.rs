@@ -24,7 +24,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             custom_size: Some(Vec2::new(32.0,32.0)),
             ..default()
         },
-        Transform::from_xyz(0.0, 0.0, 0.0),
+        Transform::from_xyz(0.0, 0.0, 9.0),
             // .with_scale(Vec3::new(2.0,2.0,1.0)),
         PlayerMovementSpeed(100.0),
         // Add PlayerHealth Component with default values of 3/3 lifes/max_lifes

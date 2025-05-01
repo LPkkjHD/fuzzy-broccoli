@@ -33,7 +33,7 @@ pub fn spawn_enemy_system(
         let spawn_position = Vec3::new(
             player_transform.translation.x + spawn_distance * angle.cos(),
             player_transform.translation.y + spawn_distance * angle.sin(),
-            0.0,
+            10.0,
         );
 
         let enemy_health: f32;
@@ -60,6 +60,20 @@ pub fn spawn_enemy_system(
             EnemyType::Zombie { .. } => "zombie_apocalypse_tileset/organized_separated_sprites/Kid Zombie Animation Frames/Zombie-Tileset---_0430_Capa-431.png",
         };
 
+        // Use different sizes for enemy types
+        let enemy_size = match enemy_type {
+            EnemyType::Zombie { .. } => Vec2::new(32.0, 32.0),
+            EnemyType::Skeleton { .. } => Vec2::new(32.0, 32.0),
+            EnemyType::Boss { .. } => Vec2::new(64.0, 64.0),
+        };
+
+        // Set hitbox size based on enemy type
+        let hitbox_size = match enemy_type {
+            EnemyType::Zombie { .. } => Vec2::new(16.0, 20.0),
+            EnemyType::Skeleton { .. } => Vec2::new(16.0, 20.0),
+            EnemyType::Boss { .. } => Vec2::new(32.0, 40.0),
+        };
+
         let texture_handle = asset_server.load(sprite_path);
 
         commands.spawn((
@@ -73,16 +87,16 @@ pub fn spawn_enemy_system(
                 scale: Vec3::ONE,
             },
             Sprite {
-                custom_size: Some(Vec2::new(32.0, 32.0)),
+                custom_size: Some(Vec2::new(enemy_size.x, enemy_size.y)),
                 image: texture_handle,
                 ..Default::default()
             },
             RigidBody::Dynamic,
-            Collider::round_rectangle(16.0, 20.0, 4.0),
+            Collider::round_rectangle(hitbox_size.x, hitbox_size.y, 5.0),
             Mass(5.0),
             AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
             AnimationFrame(0),
-            LinearVelocity(Vec2::ZERO), // Start with zero velocity <<< ADDED
+            LinearVelocity(Vec2::ZERO), // Start with zero velocity
             LockedAxes::ROTATION_LOCKED,
             CollisionLayers::new(
                 GameLayer::ENEMY,
@@ -100,7 +114,7 @@ pub fn spawn_enemy_system(
 pub fn enemy_movement_and_direction_system(
     mut enemy_query: Query<(
         &Transform,
-        &mut LinearVelocity, // <<< ADDED mutable velocity access
+        &mut LinearVelocity,
         &mut FacingDirection,
         &mut Sprite,
         &EnemyType,
@@ -132,14 +146,12 @@ pub fn enemy_movement_and_direction_system(
             EnemyType::Boss { speed, .. } => *speed,
         };
 
-        // --- Set Linear Velocity ---
+        // Set Linear Velocity
         let target_velocity = direction * speed;
         velocity.x = target_velocity.x;
         velocity.y = target_velocity.y;
-        // --- REMOVED: transform.translation += direction * speed * time.delta_secs(); ---
-        // --- REMOVED: transform.rotation = Quat::IDENTITY; ---
 
-        // --- Update Facing Direction and Sprite (Logic remains the same) ---
+        //Update Facing Direction and Sprite
         let new_direction = if direction.x.abs() > direction.y.abs() {
             // Horizontal movement is dominant
             if direction.x > 0.0 {
@@ -170,7 +182,7 @@ pub fn enemy_movement_and_direction_system(
 
         // Get frames for the current facing direction, handle potential missing entries gracefully
         if let Some(direction_frames) = frames_map.get(&new_direction) {
-            // Determine animation frame index (same logic as before)
+            // Determine animation frame index
             let frame_index = match anim_frame.0 {
                 0 => 0,
                 1 => 1,
@@ -183,7 +195,7 @@ pub fn enemy_movement_and_direction_system(
             if frame_index < direction_frames.len() {
                 // Update the sprite's texture handle
                 sprite.image = direction_frames[frame_index].clone();
-                // Flip sprite horizontally if facing Right (assuming Left-facing sprites are the source for Right)
+                // Flip sprite horizontally if facing Right
                 sprite.flip_x = new_direction == FacingDirection::Right;
             } else {
                 warn_once!(
@@ -198,6 +210,14 @@ pub fn enemy_movement_and_direction_system(
                 new_direction
             );
         }
+    }
+}
+
+/// Timer system to manage enemy spawn intervals
+pub fn wave_timer_system(mut wave_timer: ResMut<WaveTimer>, time: Res<Time>) {
+    if wave_timer.timer.tick(time.delta()).just_finished() {
+        wave_timer.wave += 1;
+        info!("Wave {} started!", wave_timer.wave);
     }
 }
 
