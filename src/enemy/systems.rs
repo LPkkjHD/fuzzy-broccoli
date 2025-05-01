@@ -9,7 +9,6 @@ use rand::prelude::*;
 use std::collections::HashMap;
 use std::f32::consts::PI;
 
-/// Spawns an enemy with its enemy type, texture, and related components.
 pub fn spawn_enemy_system(
     mut commands: Commands,
     time: Res<Time>,
@@ -37,7 +36,6 @@ pub fn spawn_enemy_system(
         );
 
         let enemy_health: f32;
-        // Choose enemy type based on current wave.
         let enemy_type = match wave_timer.wave {
             0..=2 => {
                 enemy_health = 100.0;
@@ -53,21 +51,18 @@ pub fn spawn_enemy_system(
             }
         };
 
-        // Select an initial sprite, default is "down'
         let sprite_path = match enemy_type {
             EnemyType::Boss { .. } => "zombie_apocalypse_tileset/organized_separated_sprites/Kid Zombie Animation Frames/Zombie-Tileset---_0430_Capa-431.png",
             EnemyType::Skeleton { .. } => "zombie_apocalypse_tileset/organized_separated_sprites/Kid Zombie Animation Frames/Zombie-Tileset---_0430_Capa-431.png",
             EnemyType::Zombie { .. } => "zombie_apocalypse_tileset/organized_separated_sprites/Kid Zombie Animation Frames/Zombie-Tileset---_0430_Capa-431.png",
         };
 
-        // Use different sizes for enemy types
         let enemy_size = match enemy_type {
             EnemyType::Zombie { .. } => Vec2::new(32.0, 32.0),
             EnemyType::Skeleton { .. } => Vec2::new(32.0, 32.0),
             EnemyType::Boss { .. } => Vec2::new(64.0, 64.0),
         };
 
-        // Set hitbox size based on enemy type
         let hitbox_size = match enemy_type {
             EnemyType::Zombie { .. } => Vec2::new(16.0, 20.0),
             EnemyType::Skeleton { .. } => Vec2::new(16.0, 20.0),
@@ -96,7 +91,7 @@ pub fn spawn_enemy_system(
             Mass(5.0),
             AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
             AnimationFrame(0),
-            LinearVelocity(Vec2::ZERO), // Start with zero velocity
+            LinearVelocity(Vec2::ZERO),
             LockedAxes::ROTATION_LOCKED,
             CollisionLayers::new(
                 GameLayer::ENEMY,
@@ -110,7 +105,7 @@ pub fn spawn_enemy_system(
         ));
     }
 }
-/// Handle enemy movment and replace the sprite based on direction and animation state
+
 pub fn enemy_movement_and_direction_system(
     mut enemy_query: Query<(
         &Transform,
@@ -124,34 +119,27 @@ pub fn enemy_movement_and_direction_system(
     animation_frames: Res<EnemyAnimationFrames>,
 ) {
     let Ok(player_transform) = player_query.get_single() else {
-        // Optionally set all enemy velocities to zero if player disappears?
-        // for (_, mut vel, ..) in enemy_query.iter_mut() { vel.0 = Vec2::ZERO; }
         return;
     };
     let player_pos_2d = player_transform.translation.truncate(); // Use Vec2 for calculations
 
-    // Iterate through enemies
     for (enemy_transform, mut velocity, mut facing, mut sprite, enemy_type, anim_frame) in
         enemy_query.iter_mut()
     {
         let enemy_pos_2d = enemy_transform.translation.truncate();
 
-        // Calculate direction vector from enemy to player
         let direction = (player_pos_2d - enemy_pos_2d).normalize_or_zero();
 
-        // Get speed based on enemy type
         let speed = match enemy_type {
             EnemyType::Zombie { speed, .. } => *speed,
             EnemyType::Skeleton { speed, .. } => *speed,
             EnemyType::Boss { speed, .. } => *speed,
         };
 
-        // Set Linear Velocity
         let target_velocity = direction * speed;
         velocity.x = target_velocity.x;
         velocity.y = target_velocity.y;
 
-        //Update Facing Direction and Sprite
         let new_direction = if direction.x.abs() > direction.y.abs() {
             // Horizontal movement is dominant
             if direction.x > 0.0 {
@@ -168,34 +156,27 @@ pub fn enemy_movement_and_direction_system(
             }
         };
 
-        // Update facing direction component only if it changed
         if *facing != new_direction {
             *facing = new_direction;
         }
 
-        // Load and set the correct animation frame sprite
         let frames_map = match enemy_type {
             EnemyType::Zombie { .. } => &animation_frames.zombie,
             EnemyType::Skeleton { .. } => &animation_frames.skeleton,
             EnemyType::Boss { .. } => &animation_frames.boss,
         };
 
-        // Get frames for the current facing direction, handle potential missing entries gracefully
         if let Some(direction_frames) = frames_map.get(&new_direction) {
-            // Determine animation frame index
             let frame_index = match anim_frame.0 {
                 0 => 0,
                 1 => 1,
-                2 => 0, // Ping-pong effect
+                2 => 0,
                 3 => 2,
-                _ => 0, // Default case
+                _ => 0,
             };
 
-            // Ensure frame index is valid for the loaded frames
             if frame_index < direction_frames.len() {
-                // Update the sprite's texture handle
                 sprite.image = direction_frames[frame_index].clone();
-                // Flip sprite horizontally if facing Right
                 sprite.flip_x = new_direction == FacingDirection::Right;
             } else {
                 warn_once!(
@@ -213,7 +194,6 @@ pub fn enemy_movement_and_direction_system(
     }
 }
 
-/// Timer system to manage enemy spawn intervals
 pub fn wave_timer_system(mut wave_timer: ResMut<WaveTimer>, time: Res<Time>) {
     if wave_timer.timer.tick(time.delta()).just_finished() {
         wave_timer.wave += 1;
@@ -235,21 +215,18 @@ pub fn prevent_enemy_overlap_system(
             let (entity_b, pos_b, vel_b) = enemies[j];
 
             let distance = pos_a.distance(pos_b);
-            let min_distance = 24.0; // Reduced from 32.0 to allow closer proximity
+            let min_distance = 24.0;
 
             if distance < min_distance {
                 let direction = (pos_b - pos_a).normalize_or_zero();
                 let overlap = min_distance - distance;
 
-                // Only apply separation if enemies are moving towards each other
                 let relative_velocity = vel_b - vel_a;
                 let approaching = relative_velocity.dot(direction.truncate()) < 0.0;
 
                 if approaching {
-                    // Calculate separation force based on overlap
                     let separation = direction * (overlap * 0.5);
 
-                    // Apply separation with damping
                     if let Ok((mut transform_a, _, _)) = query.get_mut(entity_a) {
                         transform_a.translation -= separation * 0.7;
                     }
@@ -262,7 +239,6 @@ pub fn prevent_enemy_overlap_system(
     }
 }
 
-/// Animation sustem for enemies
 pub fn animate_enemy_system(
     mut query: Query<(&mut AnimationTimer, &mut AnimationFrame)>,
     time: Res<Time>,
@@ -281,13 +257,11 @@ pub fn animate_enemy_system(
     }
 }
 
-/// Preload all required sprites for the enemies so no flickering occurs when swapping the sprites
 pub fn setup_enemy_sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
     let mut zombie_frames: HashMap<FacingDirection, Vec<Handle<Image>>> = HashMap::new();
     let mut skeleton_frames: HashMap<FacingDirection, Vec<Handle<Image>>> = HashMap::new();
     let mut boss_frames: HashMap<FacingDirection, Vec<Handle<Image>>> = HashMap::new();
 
-    // Load frames for each direction and enemy type
     for direction in [
         FacingDirection::Down,
         FacingDirection::Up,
@@ -333,7 +307,6 @@ pub fn setup_enemy_sprites(mut commands: Commands, asset_server: Res<AssetServer
         }
     }
 
-    // Right frames are just left frames but mirrored
     if let Some(left_frames) = zombie_frames.get(&FacingDirection::Left) {
         zombie_frames.insert(FacingDirection::Right, left_frames.clone());
     }

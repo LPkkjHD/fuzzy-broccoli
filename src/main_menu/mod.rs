@@ -3,7 +3,6 @@ use fuzzy_broccoli::AppState;
 use systems::interactions::{interact_with_play_button, interact_with_quit_button};
 
 pub mod components;
-pub mod styles;
 pub mod systems;
 
 use crate::main_menu::systems::layouts::*;
