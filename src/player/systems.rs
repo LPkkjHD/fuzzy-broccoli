@@ -26,9 +26,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Transform::from_xyz(0.0, 0.0, 9.0),
-            // .with_scale(Vec3::new(2.0,2.0,1.0)),
         PlayerMovementSpeed(100.0),
-        // Add PlayerHealth Component with default values of 3/3 lifes/max_lifes
         PlayerHealth::new(3),
         RigidBody::Kinematic,
         Collider::round_rectangle(17.0, 20.0, 4.0),
@@ -72,7 +70,6 @@ pub fn player_ground_collision_system(
         let (grid_x, grid_y) = center_to_top_left_grid(grid_x, grid_y);
         let grid_coords = (grid_x.round() as i32, grid_y.round() as i32);
 
-        // If player is on non-ground tile, move them back based on their facing direction
         if !ground_tiles.0.contains(&grid_coords) {
             let offset = match facing_direction {
                 PlayerFacingDirection::Left => Vec3::new(16.0, 0.0, 0.0),
@@ -316,7 +313,6 @@ pub fn cursor_system(
         .map(|ray| ray.origin.truncate())
     {
         mycoords.0 = world_position;
-        // eprintln!("World coords: {}/{}", world_position.x, world_position.y);
     }
 }
 
@@ -329,28 +325,25 @@ pub fn player_enemy_collision_damage_system(
 ) {
     let Ok((player_entity, mut player_health, invulnerability)) = player_query.get_single_mut() else { return };
 
-    // Check and update invulnerability
     if let Some(mut invulnerability) = invulnerability {
         invulnerability.timer.tick(time.delta());
         if !invulnerability.timer.finished() {
-            return; // Skip damage if still invulnerable
+            return;
         }
         commands.entity(player_entity).remove::<DamageInvulnerability>();
     }
 
-    // Check collisions and apply damage
     for collision in collision_events.read() {
         let entity1 = collision.0.entity1;
         let entity2 = collision.0.entity2;
 
-        // Check if one entity is player and the other is enemy
         let is_enemy_collision = (entity1 == player_entity && enemy_query.get(entity2).is_ok()) ||
             (entity2 == player_entity && enemy_query.get(entity1).is_ok());
 
         if is_enemy_collision {
             player_health.decrease_health(1);
             commands.entity(player_entity).insert(DamageInvulnerability::default());
-            break; // Only take damage once per frame
+            break;
         }
     }
 }

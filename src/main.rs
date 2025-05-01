@@ -23,7 +23,6 @@ fn main() {
         "App"
     };
     let mut app = App::new();
-    // Add plugins
     app.add_plugins((
         DefaultPlugins
             .set(WindowPlugin {
@@ -38,11 +37,9 @@ fn main() {
         PhysicsPlugins::default().set(PhysicsInterpolationPlugin::interpolate_all()),
     ));
 
-    // Add debug plugins for rendering colliders etc
     #[cfg(debug_assertions)]
     app.add_plugins(PhysicsDebugPlugin::default());
 
-    // Add custom plugins
     app.add_plugins((
         MainMenuPlugin,
         PlayerPlugin,
@@ -53,9 +50,7 @@ fn main() {
     ));
     app.insert_resource(Gravity(Vec2::ZERO));
 
-    // Add State
     app.init_state::<AppState>();
 
-    // run the app
     app.run();
 }

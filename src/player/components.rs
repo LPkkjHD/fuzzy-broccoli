@@ -102,10 +102,9 @@ impl Default for DamageInvulnerability {
     }
 }
 
-// --- UNIT TESTS ---
 #[cfg(test)]
 mod tests {
-    use super::*; // Import items from the parent module (PlayerHealth)
+    use super::*;
 
     #[test]
     fn test_player_health_default() {
@@ -180,7 +179,7 @@ mod tests {
             current_health: 8,
             max_health: 10,
         };
-        health.increase_health(5); // Try to increase past max
+        health.increase_health(5);
         assert_eq!(
             health.current_health(),
             10,
@@ -194,7 +193,7 @@ mod tests {
             current_health: 10,
             max_health: 10,
         };
-        health.increase_health(2); // Try to increase when already at max
+        health.increase_health(2);
         assert_eq!(health.current_health(), 10, "Health should remain at max");
     }
 
@@ -212,7 +211,6 @@ mod tests {
         );
     }
 
-    // --- Tests for decrease_health (using corrected logic) ---
     #[test]
     fn test_decrease_health_normal() {
         let mut health = PlayerHealth {
@@ -252,7 +250,7 @@ mod tests {
             current_health: 3,
             max_health: 10,
         };
-        health.decrease_health(10); // Try to decrease past zero
+        health.decrease_health(10);
         assert_eq!(health.current_health(), 0, "Health should stop at zero");
     }
 
@@ -262,7 +260,7 @@ mod tests {
             current_health: 0,
             max_health: 10,
         };
-        health.decrease_health(5); // Try to decrease when already at zero
+        health.decrease_health(5);
         assert_eq!(health.current_health(), 0, "Health should remain at zero");
     }
 
@@ -280,7 +278,6 @@ mod tests {
         );
     }
 
-    // --- Tests for increase_max_health ---
     #[test]
     fn test_increase_max_health() {
         let mut health = PlayerHealth {
@@ -296,7 +293,6 @@ mod tests {
         );
     }
 
-    // --- Tests for decrease_max_health (using corrected logic) ---
     #[test]
     fn test_decrease_max_health_normal_no_current_change() {
         let mut health = PlayerHealth {
@@ -322,7 +318,7 @@ mod tests {
             current_health: 8,
             max_health: 10,
         };
-        health.decrease_max_health(4); // New max will be 6
+        health.decrease_max_health(4);
         assert_eq!(health.max_health(), 6, "Max health should decrease");
         assert_eq!(
             health.current_health(),
@@ -337,7 +333,7 @@ mod tests {
             current_health: 5,
             max_health: 10,
         };
-        health.decrease_max_health(15); // Decrease past zero
+        health.decrease_max_health(15);
         assert_eq!(health.max_health(), 0, "Max health should decrease to zero");
         assert_eq!(
             health.current_health(),
@@ -351,14 +347,13 @@ mod tests {
         let mut health = PlayerHealth {
             current_health: 5,
             max_health: 3,
-        }; // Start invalid state for test
+        };
         health.decrease_max_health(10);
         assert_eq!(
             health.max_health(),
             0,
             "Max health should stop decreasing at zero"
         );
-        // This assert depends on clamping happening *after* max_health subtraction
         assert_eq!(
             health.current_health(),
             0,
@@ -366,7 +361,6 @@ mod tests {
         );
     }
 
-    // --- Tests for getters (trivial but good for completeness) ---
     #[test]
     fn test_getters() {
         let health = PlayerHealth {

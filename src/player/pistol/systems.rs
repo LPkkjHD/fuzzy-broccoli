@@ -68,7 +68,6 @@ pub fn spawn_projectile_component(
                 SweptCcd::default(),
 );
             commands.spawn(projectile_component);
-            // event.0
         }
     }
 }

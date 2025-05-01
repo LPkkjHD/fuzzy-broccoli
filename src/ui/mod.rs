@@ -14,7 +14,7 @@ impl Plugin for UiPlugin {
         app.add_plugins((
             HudPlugin,
             WinScreenPlugin,
-            GameOverScreenPlugin, // Add this line
+            GameOverScreenPlugin,
         ));
     }
 }

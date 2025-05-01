@@ -30,8 +30,6 @@ pub fn spawn_health_bar_container_system(
             );
             commands.spawn((
                 Node {
-                    // min_width: Val::Px(200.0),
-                    // min_height: Val::Px(16.0),
                     position_type: PositionType::Absolute,
                     left: Val::Px(10.0),
                     top: Val::Px(10.0),
@@ -39,11 +37,8 @@ pub fn spawn_health_bar_container_system(
                     flex_direction: FlexDirection::Row,
                     column_gap: Val::Px(4.0),
                     align_items: AlignItems::Center,
-                    // width: Val::Auto,
-                    // height: Val::Px(32.0),
                     ..default()
                 },
-                // BackgroundColor(Color::srgb(0.5, 0.5, 0.5)),
                 HealthBarContainer,
                 Name::new("HealthBarContainer"),
             ));
@@ -51,21 +46,18 @@ pub fn spawn_health_bar_container_system(
     };
 }
 
-//  Helper function to spawn a single heart slot with its children
 fn spawn_single_heart_slot(parent: &mut ChildBuilder, index: u8, health_assets: &HealthBarAssets) {
     parent
         .spawn((
             Node {
                 width: Val::Px(32.0),
                 height: Val::Px(32.0),
-                // align_items: AlignItems::Center,
                 ..default()
             },
             HeartSlot { index },
             Name::new(format!("HeartSlot_{}", index)),
         ))
         .with_children(|slot| {
-            // Background Based on max health
             slot.spawn((
                 Node {
                     width: Val::Percent(100.0),
@@ -79,8 +71,6 @@ fn spawn_single_heart_slot(parent: &mut ChildBuilder, index: u8, health_assets: 
                 },
                 Name::new(format!("HeartBg_{}", index)),
             ));
-            // Border (Visible based on current
-            // health)
             slot.spawn((
                 Node {
                     width: Val::Percent(100.0),
@@ -94,8 +84,6 @@ fn spawn_single_heart_slot(parent: &mut ChildBuilder, index: u8, health_assets: 
                 },
                 Name::new(format!("HeartBorder_{}", index)),
             ));
-            // Heart (Visible based on current
-            // health)
             slot.spawn((
                 Node {
                     width: Val::Percent(100.0),
@@ -147,7 +135,6 @@ pub fn update_health_bar_system(
         }
         let current_slot_count = current_slots.len() as u8;
 
-        // 1. Despawn excess slots
         if new_max_health < current_slot_count {
             info!(
                 "Max health decreased. Despawning {} slots",
@@ -162,7 +149,6 @@ pub fn update_health_bar_system(
                 }
             }
         }
-        // 2. Spawn missing slots:
         if new_max_health > current_slot_count {
             info!(
                 "Max health increased. Spawning {} slots.",

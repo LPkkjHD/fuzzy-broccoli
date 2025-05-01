@@ -97,7 +97,7 @@ pub fn handle_player_chunk_update_event(
         28,
         13,
         Some(UVec2 { x: 1, y: 3 }),
-        None, //Some(UVec2 { x: 18, y: 19 }),
+        None,
     );
     let texture_atlas_handle = texture_atlas_layouts.add(texture_atlas_layout);
 
@@ -137,8 +137,6 @@ pub fn handle_player_chunk_update_event(
                 continue;
             }
 
-            // Ignore edges
-            // This will help in better player visualization when going from land to water
             updated_ground_map.insert((*x, *y));
             tiles.insert(Tile::new((*x, *y), tile, 0));
         }
@@ -182,7 +180,6 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
     let mut ground_map = HashSet::new();
     let end = (start.0 + CHUNK_W as i32, start.1 + CHUNK_H as i32);
 
-    // First pass: Generate ground map
     for x in start.0 - 1..end.0 + 1 {
         for y in start.1 - 1..end.1 + 1 {
             let noise_val1 = noise.get([x as f64 / 100.5, y as f64 / 100.5]);
@@ -197,7 +194,6 @@ pub fn gen_chunk(gen_seed: u32, start: (i32, i32)) -> (HashSet<Tile>, HashSet<(i
         }
     }
 
-    // Second pass: Generate features and water
     for x in start.0 - 1..end.0 + 1 {
         for y in start.1 - 1..end.1 + 1 {
             if !ground_map.contains(&(x, y)) {

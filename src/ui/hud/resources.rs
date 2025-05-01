@@ -15,7 +15,7 @@ pub struct GameTimer {
 impl Default for GameTimer {
     fn default() -> Self {
         Self {
-            remaining_seconds: 300.0 // 5 minutes in seconds
+            remaining_seconds: 300.0
         }
     }
 }
