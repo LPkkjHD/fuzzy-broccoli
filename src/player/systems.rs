@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use avian2d::prelude::*;
 use bevy::{prelude::*, window::PrimaryWindow};
 use crate::map_genreation::util::{center_to_top_left_grid, grid_to_chunk, world_to_grid};
+use crate::map_genreation::resources::GroundTiles;
 
 use crate::{
     collision::GameLayer,
@@ -26,7 +27,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         Transform::from_xyz(0.0, 0.0, 9.0),
             // .with_scale(Vec3::new(2.0,2.0,1.0)),
-        PlayerMovementSpeed(500.0),
+        PlayerMovementSpeed(100.0),
         // Add PlayerHealth Component with default values of 3/3 lifes/max_lifes
         PlayerHealth::new(3),
         RigidBody::Kinematic,
@@ -58,6 +59,32 @@ pub fn spawn_player_camera(
         }),
     ));
 }
+
+pub fn player_ground_collision_system(
+    mut player_query: Query<(&mut Transform, &PlayerFacingDirection), With<Player>>,
+    ground_tiles: Res<GroundTiles>,
+) {
+    if let Ok((mut transform, facing_direction)) = player_query.get_single_mut() {
+        let current_pos = transform.translation;
+
+        // Convert current position to grid coordinates
+        let (grid_x, grid_y) = world_to_grid(current_pos.x, current_pos.y);
+        let (grid_x, grid_y) = center_to_top_left_grid(grid_x, grid_y);
+        let grid_coords = (grid_x.round() as i32, grid_y.round() as i32);
+
+        // If player is on non-ground tile, move them back based on their facing direction
+        if !ground_tiles.0.contains(&grid_coords) {
+            let offset = match facing_direction {
+                PlayerFacingDirection::Left => Vec3::new(16.0, 0.0, 0.0),
+                PlayerFacingDirection::Right => Vec3::new(-16.0, 0.0, 0.0),
+                PlayerFacingDirection::Up => Vec3::new(0.0, -16.0, 0.0),
+                PlayerFacingDirection::Down => Vec3::new(0.0, 16.0, 0.0),
+            };
+            transform.translation += offset;
+        }
+    }
+}
+
 
 pub fn player_movement_system(
     mut player_query: Query<

@@ -14,7 +14,7 @@ use std::time::Duration;
 
 mod components;
 mod config;
-mod resources;
+pub mod resources;
 mod systems;
 pub mod util;
 

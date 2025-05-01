@@ -26,7 +26,10 @@ impl Plugin for PlayerPlugin {
             Startup,
             (setup_player_sprites, spawn_player, spawn_player_camera).chain(),
         );
-        app.add_systems(Update, (player_movement_system, move_camera).chain());
+        app.add_systems(
+            Update,
+            (player_movement_system, player_ground_collision_system, move_camera).chain(),
+        );
         app.add_systems(Update, (zoom_control_system, cursor_system));
         app.add_systems(
             Update,
@@ -37,6 +40,7 @@ impl Plugin for PlayerPlugin {
             )
                 .run_if(in_state(AppState::InGame)),
         );
+
         app.add_systems(Update, update_player_chunk_pos);
         app.add_systems(
             Update,
