@@ -1,3 +1,4 @@
+use crate::AlignSelf::Auto;
 use crate::{
     enemy::resources::EnemyKillCount,
     player::components::{Player, PlayerHealth},
@@ -5,6 +6,7 @@ use crate::{
 
 use super::{components::*, HealthBarAssets};
 use bevy::prelude::*;
+use crate::ui::hud::resources::GameTimer;
 
 pub fn load_health_bar_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
     let assets = HealthBarAssets {
@@ -230,5 +232,55 @@ pub fn update_score_widget_system(
     ); // Add this log!
     for mut text in &mut score_text_query {
         **text = format!("Kills: {}", score_resource.0);
+    }
+}
+
+pub fn spawn_timer_widget_system(mut commands: Commands) {
+    let timer_container = (
+        TimerHudContainer,
+        Node {
+            position_type: PositionType::Absolute,
+            top: Val::Px(10.0),
+            left: Val::Px(0.0),
+            right: Val::Px(0.0),
+            margin: UiRect::horizontal(Val::Auto),
+            justify_content: JustifyContent::Center,
+            ..default()
+        },
+    );
+
+    let timer_text = (
+        TimerTextMarker,
+        Text::new("Time: 5:00"),
+    );
+
+    commands.spawn(timer_container).with_child(timer_text);
+}
+
+pub fn despawn_timer_widget_system(
+    mut commands: Commands,
+    timer_query: Query<Entity, With<TimerHudContainer>>,
+) {
+    if let Ok(timer_entity) = timer_query.get_single() {
+        commands.entity(timer_entity).despawn_recursive();
+    }
+}
+
+pub fn update_timer_system(
+    time: Res<Time>,
+    mut game_timer: ResMut<GameTimer>,
+    mut timer_query: Query<&mut Text, With<TimerTextMarker>>,
+) {
+    game_timer.remaining_seconds -= time.delta_secs();
+
+    if game_timer.remaining_seconds <= 0.0 {
+        game_timer.remaining_seconds = 0.0;
+    }
+
+    let minutes = (game_timer.remaining_seconds / 60.0).floor();
+    let seconds = (game_timer.remaining_seconds % 60.0).floor();
+
+    for mut text in &mut timer_query {
+        **text = format!("Time: {:.0}:{:02.0}", minutes, seconds);
     }
 }

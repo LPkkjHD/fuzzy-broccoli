@@ -34,5 +34,12 @@ impl Plugin for HudPlugin {
                 Update,
                 update_score_widget_system.run_if(resource_changed::<EnemyKillCount>),
             );
+        app.init_resource::<GameTimer>()
+            .add_systems(OnEnter(AppState::InGame), spawn_timer_widget_system)
+            .add_systems(OnExit(AppState::InGame), despawn_timer_widget_system)
+            .add_systems(
+                Update,
+                update_timer_system.run_if(in_state(AppState::InGame)),
+            );
     }
 }

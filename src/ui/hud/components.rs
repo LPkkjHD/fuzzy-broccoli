@@ -21,3 +21,9 @@ pub struct ScoreHudContainer;
 
 #[derive(Component)]
 pub struct KillCountMarker;
+
+#[derive(Component)]
+pub struct TimerHudContainer;
+
+#[derive(Component)]
+pub struct TimerTextMarker;
