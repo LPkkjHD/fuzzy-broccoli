@@ -1,4 +1,7 @@
-# Vorläufige Readme mit Sachen
+# Fuzzy Broccoli
+Dies ist das Studi-Projekt von Nick Möhrmann, Jakob Fassunge und Martin Schmidt an der DHBW Karlsruhe im Kurs "Einführung in Rust".
+
+> Leider ist die Applikation nicht mit dem Release-Profile auszuführen (Bevy Macht Bevy Ding).
 
 ## Physik Engine:
 [Rapier 2d](https://rapier.rs/)
